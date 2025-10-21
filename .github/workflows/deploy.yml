@@ -1,0 +1,68 @@
+name: Build and Deploy Docs
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  get-env:
+    name: Resolve Environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+    steps:
+      - id: set-env
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "environment=production" >> "$GITHUB_OUTPUT"
+          elif [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
+            echo "environment=staging" >> "$GITHUB_OUTPUT"
+          else
+            echo "environment=preview" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    name: Build and Deploy
+    needs: get-env
+    runs-on: ubuntu-latest
+    environment: ${{ needs.get-env.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build static export
+        run: bun run build
+
+      - name: Install Wrangler CLI
+        run: npm install -g wrangler
+
+      - name: Deploy to Cloudflare
+        run: |
+          if [[ "${{ needs.get-env.outputs.environment }}" == "production" ]]; then
+            wrangler deploy --env production
+          elif [[ "${{ needs.get-env.outputs.environment }}" == "staging" ]]; then
+            wrangler deploy --env staging
+          else
+            wrangler deploy
+          fi
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_WORKER_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_WORKER_API_TOKEN }}
