@@ -1,0 +1,26 @@
+name = "polygon-agentic-docs"
+compatibility_date = "2024-07-04"
+workers_dev = true
+preview_urls = false
+send_metrics = false
+placement = { mode = "smart" }
+
+[assets]
+directory = "./out"
+
+[build]
+command = "bun run build"
+
+[env.staging]
+# Update the pattern below to match the staging domain once it is assigned.
+routes = []
+
+[env.staging.build]
+command = "bun run build"
+
+[env.production]
+# Update the pattern below to match the production domain once it is assigned.
+routes = []
+
+[env.production.build]
+command = "bun run build"
