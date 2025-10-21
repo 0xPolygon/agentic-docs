@@ -1,0 +1,133 @@
+---
+title: "USDC Gateway Integration"
+description: "How to integrate USDC with Circle's USDC Gateway"
+---
+
+<Callout type="warning" title="Security notice"> Like all of crypto, payments require handling sensitive data. The
+following examples are demonstrations of integrations but should not be used in
+production. In production, sensitive information such as API keys, private-key
+wallets, etc., should be put in a secrets manager or vault. </Callout>
+
+## USDC
+
+USDC is a stablecoin — a digital dollar issued by Circle and backed 1:1 by real
+USD held in reserve. It's widely used for on-chain payments because it offers
+price stability, instant settlement, and interoperability across major
+blockchains.
+
+On Polygon, USDC transactions are:
+- **Fast** — typically finalized within 2 seconds.
+- **Low cost** — fees are usually fractions of a cent.
+- **Widely supported** — used by DeFi apps, merchants, and payment APIs.
+
+## Integration paths
+
+Circle has [excellent documentation](https://developers.circle.com/), including
+ready-to-use SDKs and sample applications.
+
+There are two ways to work with USDC on Polygon:
+
+| Approach      | Description                                                            | When to use                                             |
+|---------------|------------------------------------------------------------------------|---------------------------------------------------------|
+| Native USDC   | Standard ERC-20 contract directly on Polygon PoS                       | When you only need payments within Polygon           |
+| Gateway USDC  | Circle's cross-chain system that moves USDC between blockchains (CCTP) | When your users need to send or receive USDC across chains |
+
+Here will explore the Gateway approach.
+
+### USDC Gateway Integration
+
+The Circle Gateway is a cross-chain USDC liquidity layer. Instead of minting
+separate USDC contracts on each chain, the Gateway lets users hold a single
+"omnichain" balance and move it across chains using CCTP (Cross-Chain Transfer
+Protocol).
+
+Think of it like this:
+
+- Native USDC: "USDC on Polygon"
+- Gateway USDC: "USDC that can move to or from Polygon"
+
+Gateway handles the following:
+
+- Deposits: Users send USDC to a special Gateway Wallet contract.
+- Attestations: Circle verifies the burn event on the source chain.
+- Mints: A Gateway Minter contract releases the same amount on the destination chain.
+
+This design allows instant, trust-minimized USDC movement between chains.
+
+Below is a simplified example that:
+
+1. Deposits USDC into the Gateway wallet on Polygon
+2. Requests an attestation from Circle's API
+3. Mints the funds back via the Gateway Minter
+
+```ts
+import { createPublicClient, createWalletClient, http, parseUnits } from "viem";
+import { polygon } from "viem/chains";
+import { privateKeyToAccount } from "viem/accounts";
+import { fetch } from "undici";
+
+const USDC = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
+const GATEWAY_WALLET = "0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE";
+const GATEWAY_MINTER = "0x2222222d7164433c4C09B0b0D809a9b52C04C205";
+
+const erc20 = [
+  { type: "function", name: "decimals", stateMutability: "view", inputs: [], outputs: [{ type: "uint8" }] },
+  { type: "function", name: "approve", stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "uint256" }], outputs: [{ type: "bool" }] },
+];
+
+const gatewayWalletAbi = [
+  { type: "function", name: "deposit", stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "uint256" }], outputs: [] },
+];
+
+const gatewayMinterAbi = [
+  { type: "function", name: "gatewayMint", stateMutability: "nonpayable", inputs: [{ type: "bytes" }, { type: "bytes" }], outputs: [] },
+];
+
+const account = privateKeyToAccount(process.env.PRIV_KEY as `0x${string}`);
+const rpc = http(process.env.POLYGON_RPC_URL);
+const pub = createPublicClient({ chain: polygon, transport: rpc });
+const wallet = createWalletClient({ chain: polygon, transport: rpc, account });
+
+async function gatewayTransfer() {
+  // 1. Approve + deposit
+  const decimals = await pub.readContract({ address: USDC, abi: erc20, functionName: "decimals" });
+  const amount = parseUnits("25", Number(decimals));
+
+  await wallet.writeContract({ address: USDC, abi: erc20, functionName: "approve", args: [GATEWAY_WALLET, amount] });
+  await wallet.writeContract({ address: GATEWAY_WALLET, abi: gatewayWalletAbi, functionName: "deposit", args: [USDC, amount] });
+
+  // 2. Request attestation from Circle Gateway API
+  const res = await fetch("https://gateway-api.circle.com/v1/transfer", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${process.env.CIRCLE_API_KEY}` },
+    body: JSON.stringify({
+      burnIntent: {
+        spec: {
+          version: 1,
+          sourceDomain: 7, // Polygon domain ID
+          destinationDomain: 7, // same-chain “withdraw”, or change for cross-chain
+          sourceContract: GATEWAY_WALLET,
+          destinationContract: GATEWAY_MINTER,
+          sourceToken: USDC,
+          destinationToken: USDC,
+          sourceDepositor: account.address,
+          destinationRecipient: "0xRecipient...",
+          value: amount.toString(),
+        },
+      },
+    }),
+  });
+  const { attestationPayload, signature } = await res.json();
+
+  // 3. Submit attestation to GatewayMinter
+  const tx = await wallet.writeContract({
+    address: GATEWAY_MINTER,
+    abi: gatewayMinterAbi,
+    functionName: "gatewayMint",
+    args: [attestationPayload as `0x${string}`, signature as `0x${string}`],
+  });
+  console.log("gatewayMint tx:", tx);
+}
+
+gatewayTransfer();
+```

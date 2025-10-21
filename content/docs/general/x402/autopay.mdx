@@ -1,0 +1,117 @@
+---
+title: "x402 Autopay"
+description: "A Chromium extension that automatically pays for x402 APIs"
+---
+
+x402 is designed for A2A payments, the agentic future where AI can pay for
+endpoints without human intervention. But what if we could leverage it for
+human micropayments across the web too?
+
+AutoPay is a Chromium extension which allows you do fund a wallet to be used for
+online micropayments, and then automatically pays for any x402 API endpoint it
+runs into.
+
+A basic demo video of how it works is here:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/b3QbkMIaXao?si=005MS-9PSu3rzQkh" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+## Installing AutoPay
+
+While the extension is not yet available on the Chrome Web Store, you can
+install it manually via one of two approaches.
+
+### Download zip
+
+Find the latest release zip here: [https://github.com/Swader/x402autopay/releases](https://github.com/Swader/x402autopay/releases), download it, and unpack it.
+
+### Clone and build
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Swader/x402autopay
+```
+
+2. Install the dependencies:
+
+```bash
+bun install
+```
+
+3. Build the extension:
+
+```bash
+bun run build
+```
+
+### Install the extension in Chrome:
+
+Whichever approach you took, you will then need to install the extension in Chrome:
+
+- go to the Extensions page in your browser
+- click the "Developer mode" checkbox
+- click the "Load unpacked" button
+- select the `dist` folder from the cloned repository that has been created by
+  the `build` step above, or the folder you got by unpacking the zip file
+
+## Using AutoPay
+
+This guide is also available as a video:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/p8JiGMhMhGo?si=MDstP0ZqsSPfkbuA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+When you first use AutoPay, it will prompt you to import or create your wallet
+and then fund it.
+
+<img src="/autopay/autopay1.png" alt="" width={360} className="mx-auto" />
+
+Once created and once you set a passphrase to encrypt it, you will be able to
+unlock it when desired. It will stay unlocked for 15 minutes by default.
+
+You can back up the wallet by clicking the "Back Up" button. After you input the
+passphrase, the private key will be displayed. Store this in a safe place.
+
+The wallet needs to be funded with USDC on Polygon to be able to pay for x402
+API endpoints. To do this, just send USDC to the address. You can also withdraw
+from a CEX
+
+We will soon add on-ramps in the extension to buy some USDC right from the
+popup.
+
+Once the wallet is funded, the balance will be refreshed periodically.
+Alternatively, you can also manually refresh the balance by clicking the
+"Refresh" button.
+
+<img src="/autopay/autopay2.png" alt="" width={360} className="mx-auto" />
+
+When you encounter a paywalled API, the extension will automatically take over
+when it detects a 402 Payment Required response. It will then summon an approval
+popup which lets you approve the payment for the first time, and set a "no ask"
+policy for later under a certain threshold.
+
+This policy can be defined per page and per currency.
+
+It is possible that, e.g. New York Times allows payments in hypothetical NYT
+tokens, so you might want to be very liberal with those if you have a bunch, but
+set a limit at 10 cents per request max if you run out, so USDC on New York
+Times.
+
+<img src="/autopay/autopay3.png" alt="" width={360} className="mx-auto" />
+
+You can see all your defined site policies and payment history in the
+extension's popup.
+
+<img src="/autopay/autopay4.png" alt="" width={360} className="mx-auto" />
+
+## Future Directions
+
+We are working on a few things to make AutoPay even better:
+
+- Add on-ramps in the extension to buy USDC right from the popup
+- Add a way to define site policies and payment history in the extension's
+  popup, pre-emptively
+- Adopt [x402 V2](https://github.com/coinbase/x402/pull/446) so fiat payments
+  are possible
+
+Got ideas for improvements? Open an issue or a PR on the
+[source repo](https://github.com/swader/autopay).

@@ -1,0 +1,169 @@
+---
+title: "x402 Quickstart for Buyers"
+description: "How to use x402 as a buyer"
+---
+
+Learn how to use x402 on Polygon to automatically discover paywalled resources,
+complete payments in USDC, and retrieve paid data with a single API call.
+
+You will achieve:
+
+- Detect 402 Payment Required responses
+- Programmatically complete USDC payments
+- Access the unlocked resource using x402-fetch or x402-axios
+
+<Callout type="warning" title="Security notice">
+This tutorial uses test credentials and local endpoints for clarity.  
+In production, never expose private keys or facilitator URLs publicly.
+</Callout>
+
+## Overview
+
+x402 extends the HTTP standard to enable **machine-to-machine payments** using
+the **402 Payment Required status code**. It works like a web paywall for APIs —
+when your request hits a paid endpoint, x402 provides headers that describe how
+to pay (e.g., cost, token, facilitator).
+
+Once your wallet client confirms payment, you receive the actual response.
+
+> Example: calling GET /weather returns a 402 with payment metadata;
+> the x402 client automatically pays, retries, and fetches the weather data.
+
+## Prerequisites
+
+| Requirement        | Example / Notes                                                |
+|--------------------|---------------------------------------------------------------|
+| Wallet             | Metamask, Rabby, or any Polygon-compatible wallet with USDC   |
+| JS env           | Node.js 18+ with npm or something of better quality, like [Bun](https://bun.sh/)                                          |
+| Polygon testnet    | Amoy RPC                                                      |
+| .env               | Must include PRIVATE_KEY, .KEY; optional FACILITATOR_URL, RESOURCE_URL |
+
+## Install dependencies
+
+Install one of the official HTTP clients:
+
+> Wherever `bun` is used, replace it with `npm` or your preferred package manager.
+
+```bash
+bun install x402-fetch
+# or
+bun install x402-axios
+```
+
+We will use x402-fetch in this tutorial.
+
+Then install viem + dotenv:
+
+```bash
+bun install viem dotenv
+```
+
+## Create a wallet client
+
+Set up a Polygon wallet using [viem](https://viem.sh/).
+
+This wallet signs and sends the USDC payment when a 402 challenge is detected.
+
+```ts
+import { createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { polygonAmoy } from "viem/chains";
+import "dotenv/config";
+
+const privateKey = process.env.PRIVATE_KEY;
+if (!privateKey) throw new Error("PRIVATE_KEY not set in .env");
+
+const account = privateKeyToAccount(`0x${privateKey}`);
+const client = createWalletClient({
+  account,
+  chain: polygonAmoy,
+  transport: http(),
+});
+
+console.log("Wallet address:", account.address);
+```
+
+Expected output:
+
+```bash
+Wallet address: 0x1234abcd...
+```
+
+## Make paid requests automatically
+
+Use x402-fetch or x402-axios to intercept 402 responses and complete the payment
+automatically.
+
+```ts
+import { wrapFetchWithPayment, decodeXPaymentResponse } from "x402-fetch";
+import { createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { polygonAmoy } from "viem/chains";
+import "dotenv/config";
+
+const account = privateKeyToAccount(`0x${process.env.PRIVATE_KEY}`);
+const client = createWalletClient({ account, chain: polygonAmoy, transport: http() });
+const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+
+const FACILITATOR_URL = process.env.FACILITATOR_URL || "https://x402-amoy.polygon.technology";
+const RESOURCE_URL = process.env.RESOURCE_URL || "http://127.0.0.1:4021/weather";
+
+(async () => {
+  const response = await fetchWithPayment(RESOURCE_URL, { method: "GET" });
+  const body = await response.json();
+  console.log("Response body:", body);
+
+  if (body.report) {
+    const rawPaymentResponse = response.headers.get("x-payment-response");
+    console.log("Raw payment header:", rawPaymentResponse);
+    const decoded = decodeXPaymentResponse(rawPaymentResponse);
+    console.log("Decoded payment:", decoded);
+  }
+})();
+```
+
+The client:
+- Sends the request
+- Receives 402 Payment Required
+- Pays in USDC via facilitator
+- Retries automatically
+- Returns the unlocked JSON data
+
+## Extras
+
+Debugging, sanity checks, and guardrails.
+
+### Schema
+
+| name            | type   | required | example                                             | description            |
+|-----------------|--------|----------|-----------------------------------------------------|------------------------|
+| PRIVATE_KEY     | string | ✅        | `"abcd1..."`                                        | Wallet key for Polygon |
+| FACILITATOR_URL | string | optional | `"https://x402-amoy.polygon.technology"`            | Payment relay endpoint |
+| RESOURCE_URL    | string | ✅        | `"https://api.example.com/paid-endpoint"`           | Target API URL         |
+| USDC            | token  | implied  | USDC on Polygon                                     | Payment asset          |
+
+### Errors
+
+Common failure modes and fixes:
+
+| code / case        | meaning                      | fix                                      |
+|--------------------|-----------------------------|------------------------------------------|
+| MISSING_CONFIG     | Wallet or URL not set        | Verify .env keys                         |
+| DUPLICATE_PAYMENT  | Payment replay detected      | Retry with new request ID                |
+| BAD_PAYMENT_HEADER | Invalid signature or amount  | Ensure client and facilitator are in sync |
+| 402_LOOP           | API keeps returning 402      | Check facilitator health or endpoint config |
+
+### Do / Don't Do Guardrails
+
+| ✅ Do                                              | ❌ Don't                                 |
+|----------------------------------------------------|------------------------------------------|
+| Use a sandbox facilitator for testing              | Hardcode private keys in your scripts    |
+| Log decoded payment responses                      | Parse payment headers manually           |
+| Use `wrapFetchWithPayment` or x402-axios          | Re-implement 402 logic yourself          |
+
+### References
+
+- [x402-fetch npm docs](https://www.npmjs.com/package/x402-fetch)
+- [x402-axios npm docs](https://www.npmjs.com/package/x402-axios)
+- [x402 Developer Docs](https://x402.dev)
+

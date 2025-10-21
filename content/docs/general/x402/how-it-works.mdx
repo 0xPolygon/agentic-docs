@@ -1,0 +1,133 @@
+---
+title: "x402 How It Works"
+description: "A breakdown of how x402 works"
+---
+
+The x402 protocol lets clients pay for HTTP resources (APIs, endpoints, content)
+via blockchain (and
+[soon maybe fiat](https://github.com/coinbase/x402/pull/446)) transactions.  
+
+A server can respond with HTTP 402 (“Payment Required”), the client pays, then
+the server grants access.  
+No subscription, API key or manual onboarding required.
+
+**You will learn:**
+
+- the core components of x402
+- the payment flow sequence
+- how clients and servers implement it
+- key design goals, and benefits
+- gotchas, extensions, and where it's headed
+
+---
+
+## 1. Components
+
+| Component           | Role                              | Example / note                              |
+|---------------------|-----------------------------------|--------------------------------------------|
+| **Client**          | Requests a resource & pays         | Browser, AI agent, mobile SDK               |
+| **Resource Server** | Protects endpoint, issues-402, verifies payment | API or web service                          |
+| **Facilitator**     | Optional verification + settlement layer | Offloads blockchain logic  [oai_citation:1‡QuickNode](https://www.quicknode.com/guides/infrastructure/how-to-use-x402-payment-required?utm_source=chatgpt.com) |
+| **Payment Scheme**  | Defines chain, token, network, and format | e.g., USDC on Polygon, ERC-3009 scheme      |
+
+---
+
+## 2. Payment Flow Sequence
+
+Here's the typical sequence for one request:
+
+1. Client → Resource Server: **HTTP GET /endpoint**  
+2. Resource Server → Client: **HTTP 402 Payment Required**, body includes
+   `PaymentRequirements` describing required payment.  
+3. Client selects a requirement, builds a `PaymentPayload`, encodes it (e.g.,
+   Base64) in header `X-PAYMENT` and retries request.  
+4. Resource Server verifies the payload (either locally or via the Facilitator).  
+5. Facilitator / Resource Server settles payment on-chain (if not already).  
+6. Resource Server → Client: **HTTP 200 OK**, body includes the requested
+   resource, header `X-PAYMENT-RESPONSE` contains receipt details.  
+
+<Callout type="tip" title="Note">Steps 2-3 can be skipped if the client already knows the payment
+requirement ahead of time.</Callout>
+
+---
+
+## 3. Implementation Snapshot
+
+### Server (Seller Side)
+
+- Protect endpoint with middleware (e.g.,  
+  `paymentMiddleware("0xYourAddress", { "/path": { price:"$0.01", network:"polygon" } })`).
+- On first unauthorized request: respond `402` with JSON:
+  ```json
+  {
+    "x402Version": 1,
+    "accepts": [
+      {
+        "scheme": "erc-3009",
+        "network": "polygon",
+        "token": "USDC_address",
+        "maxAmountRequired": "1000000",     // atomic units
+        "description": "Access to premium API"
+      }
+    ],
+    "error": null
+  }
+```
+
+On retry with X-PAYMENT header: verify using facilitator or your logic, then return 200 OK and include:
+
+```http
+X-PAYMENT-RESPONSE: <base64-encoded JSON receipt>
+```
+
+Full tutorial: [x402 Quickstart for Sellers](./quickstart-sellers.mdx)
+
+### Client (Buyer Side)
+
+- Send initial request → get 402 + payment info.
+- Build payment per the scheme (client signs, selects token/chain).
+- Retry request adding header:
+  ```http
+    X-PAYMENT: <base64-encoded payload>
+  ```
+
+- Receive 200 OK and decode header X-PAYMENT-RESPONSE to confirm payment details.
+
+Full tutorial: [x402 Quickstart for Buyers](./quickstart-buyers.mdx)
+
+### Facilitator (optional)
+
+Provides endpoints such as `/verify` and `/settle` for payment payloads.
+
+```http
+POST /verify
+{
+  "x402Version":1,
+  "paymentHeader": "<payload>",
+  "paymentRequirements": { … }
+}
+```
+
+Facilitators can implement their own logic to verify the payment payload and
+settle the payment on-chain, and they can also choose how and when to settle -
+some will compile queues of settlements to do later, while others will settle
+instantly.
+
+## Key design goals and benefits
+
+- HTTP-native: Uses standard HTTP codes and headers, no extra protocol.
+- Chain and token agnostic: Works across any chain or stablecoin (e.g., USDC).
+- Minimal integration: One line middleware or a few client calls.
+- Micropayments possible: Low friction, low cost, suitable for tiny payments per
+  request.
+- Autonomous agents enabled: AI systems can transact without human oversight.
+
+## Gotchas, Extensions, and Future Directions
+
+- Ensure correct network label (e.g., "polygon-amoy" vs "polygon") - mismatches
+  cause failures.
+- The protocol is still evolving; paid endpoints may require settlement delays.
+- For high-volume usage, consider deferred payment flows (aggregate many calls,
+  then settle).
+- Governance: the protocol is being stewarded by an open community to prevent
+  vendor lock-in.

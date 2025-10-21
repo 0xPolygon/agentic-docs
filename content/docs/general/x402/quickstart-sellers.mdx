@@ -1,0 +1,220 @@
+---
+title: "x402 Quickstart for Sellers"
+description: "How to use x402 as a seller"
+---
+
+Integrate x402 into your API or service to accept on-chain payments in USDC.
+Buyers or AI agents can automatically pay when accessing your protected
+endpoints.
+
+You will achieve:
+
+- Protect endpoints behind a 402 paywall
+- Receive USDC payments on Polygon
+- Publish discoverable, pay-per-use APIs
+
+<Callout type="warning" title="Security notice">
+These snippets are for demonstration only.  
+Store private keys and facilitator URLs in a secure vault — never hardcode secrets.
+</Callout>
+
+## Overview
+
+x402 brings native crypto payments to APIs using the HTTP 402 Payment Required status.
+When a buyer hits a protected route, the x402 middleware:
+
+1.	Returns a 402 response describing price and network metadata
+2.	Waits for payment through a facilitator (e.g. https://facilitator.x402.rs)
+3.	Confirms payment and releases the response automatically
+
+## Prerequisites
+
+| Requirement             | Example / Notes                                                  |
+|-------------------------|------------------------------------------------------------------|
+| Wallet to receive USDC  | Any EVM-compatible wallet (Metamask, Rabby, Safe, etc.)         |
+| JS end                 | [Node.js ≥18](https://nodejs.org/en) with npm, or something of better quality, like [Bun](https://bun.sh/)                            |
+| Existing API / server   | Express, Next.js, Hono, or any web framework                    |
+| Polygon network         | [Amoy testnet](https://wiki.polygon.technology/docs/pos/polygon-bridge/amoy-bridge-guide/) or mainnet |
+
+For reference examples:
+
+- [Coinbase x402 servers](https://github.com/coinbase/x402/tree/main/examples/typescript/servers)
+- [Advanced x402 flow](https://github.com/coinbase/x402/tree/main/examples/typescript/servers/advanced)
+- [Polygon quickstart repo](https://github.com/AkshatGada/x402_Polygon/tree/feature/facilitator-amoy/demo/quickstart-local)
+
+## Install dependencies
+
+> Wherever `bun` is used, replace it with `npm` or your preferred package manager.
+
+Pick your middleware:
+
+```bash
+bun install x402-express
+```
+
+or
+
+```bash
+bun install x402-next
+```
+
+or
+
+```bash
+bun install x402-hono
+```
+
+## Configure the payment middleware
+
+Each middleware protects your API routes and routes payments to your receiving
+wallet.
+
+You must specify:
+
+- Wallet address: where you receive USDC
+- Network: e.g. "polygon-amoy" or "polygon"
+- Facilitator URL: default for Polygon Amoy — https://facilitator.x402.rs
+- Route config: endpoint price and optional metadata
+
+For Amoy testnet onboarding, contact Polygon DevRel in
+[our telegram](https://t.me/polygonhq).
+
+### Example - Express
+
+```ts
+import express from "express";
+import { paymentMiddleware } from "x402-express";
+
+const app = express();
+
+app.use(paymentMiddleware(
+  "0xCA3953e536bDA86D1F152eEfA8aC7b0C82b6eC00", // receiver wallet
+  {
+    "GET /weather": {
+      price: "$0.001",
+      network: "polygon-amoy",
+      config: {
+        description: "Get current weather data for any location",
+        inputSchema: {
+          type: "object",
+          properties: { location: { type: "string" } }
+        },
+        outputSchema: {
+          type: "object",
+          properties: {
+            weather: { type: "string" },
+            temperature: { type: "number" }
+          }
+        }
+      }
+    }
+  },
+  {
+    url: process.env.FACILITATOR_URL || "https://facilitator.x402.rs"
+  }
+));
+
+app.get("/weather", (req, res) => {
+  res.send({
+    report: { weather: "sunny", temperature: 70 }
+  });
+});
+
+app.listen(4021, () => {
+  console.log("Server running at http://localhost:4021");
+});
+```
+
+Buyers calling `/weather` will automatically receive a 402 challenge, pay, and then receive the weather data.
+
+### Example - Next.js
+
+```ts
+import { paymentMiddleware } from "x402-next";
+
+export const middleware = paymentMiddleware(
+  "0xYourAddress", // receiving wallet
+  {
+    "/protected": {
+      price: "$0.01",
+      network: "polygon-amoy",
+      config: { description: "Access to protected content" }
+    }
+  },
+  {
+    url: "https://facilitator.x402.rs"
+  }
+);
+
+export const config = {
+  matcher: ["/protected/:path*"]
+};
+```
+
+Buyers calling `/protected` will automatically receive a 402 challenge, pay, and then receive the protected content.
+
+### Example - Hono
+
+```ts
+import { paymentMiddleware } from "x402-next";
+
+export const middleware = paymentMiddleware(
+  "0xYourAddress", // receiving wallet
+  {
+    "/protected": {
+      price: "$0.01",
+      network: "polygon-amoy",
+      config: { description: "Access to protected content" }
+    }
+  },
+  {
+    url: "https://facilitator.x402.rs"
+  }
+);
+
+export const config = {
+  matcher: ["/protected/:path*"]
+};
+```
+
+Buyers calling `/protected` will automatically receive a 402 challenge, pay, and then receive the protected content.
+
+## Extras
+
+Debugging, sanity checks, and guardrails.
+
+### Schema
+
+| name            | type   | required | example                       | description                                   |
+|-----------------|--------|----------|-------------------------------|-----------------------------------------------|
+| walletAddress   | string | ✅        | `0xYourAddress`               | Address that receives USDC payments           |
+| network         | string | ✅        | `polygon-amoy`                | Network Identifier                            |
+| price           | string | ✅        | `"$0.001"`                     | Cost per request in USDC                      |
+| FACILITATOR_URL | string | optional | `"https://facilitator.x402.rs"` | Payment facilitator endpoint                  |
+| config          | object | optional | JSON schema                   | Used for discoverability in x402 Bazaar       |
+
+### Do / Don't Do Guardrails
+
+| ✅ Do                                                                 | ❌ Don't                                                   |
+|-----------------------------------------------------------------------|------------------------------------------------------------|
+| Use `https://facilitator.x402.rs` for Polygon testnet                 | Expose private keys in middleware                          |
+| Include schema metadata for AI discoverability                        | Hardcode facilitator URLs in code                          |
+| Test with Amoy before mainnet deployment                              | Skip setting network/price — buyers will fail to pay       |
+
+### References
+
+- [x402-express npm docs](https://www.npmjs.com/package/x402-express)
+- [x402-next npm docs](https://www.npmjs.com/package/x402-next)
+- [x402-hono npm docs](https://www.npmjs.com/package/x402-hono)
+- [x402 Developer Docs](https://x402.dev)
+- [Coinbase x402 examples](https://github.com/coinbase/x402/tree/main/examples/typescript/servers)
+- [Polygon quickstart repo](https://github.com/AkshatGada/x402_Polygon/tree/feature/facilitator-amoy/demo/quickstart-local)
+
+### Errors
+
+| case / code        | meaning                   | fix                                           |
+|--------------------|--------------------------|-----------------------------------------------|
+| 402_LOOP           | Client can't fulfill payment | Check facilitator URL and wallet              |
+| INVALID_NETWORK    | Wrong network label       | Use "polygon-amoy" or "polygon"               |
+| BAD_CONFIG         | Missing route schema      | Define price and network per route            |
+

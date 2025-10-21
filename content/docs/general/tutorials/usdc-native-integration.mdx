@@ -1,0 +1,79 @@
+---
+title: "USDC Native Integration"
+description: "How to integrate USDC natively on Polygon"
+---
+
+<Callout type="warning" title="Security notice"> Like all of crypto, payments require handling sensitive data. The
+following examples are demonstrations of integrations but should not be used in
+production. In production, sensitive information such as API keys, private-key
+wallets, etc., should be put in a secrets manager or vault. </Callout>
+
+## USDC
+
+USDC is a stablecoin — a digital dollar issued by Circle and backed 1:1 by real
+USD held in reserve. It's widely used for on-chain payments because it offers
+price stability, instant settlement, and interoperability across major
+blockchains.
+
+On Polygon, USDC transactions are:
+- **Fast** — typically finalized within 2 seconds.
+- **Low cost** — fees are usually fractions of a cent.
+- **Widely supported** — used by DeFi apps, merchants, and payment APIs.
+
+## Integration paths
+
+Circle has [excellent documentation](https://developers.circle.com/), including
+ready-to-use SDKs and sample applications.
+
+There are two ways to work with USDC on Polygon:
+
+| Approach      | Description                                                            | When to use                                             |
+|---------------|------------------------------------------------------------------------|---------------------------------------------------------|
+| Native USDC   | Standard ERC-20 contract directly on Polygon PoS                       | When you only need payments within Polygon           |
+| Gateway USDC  | Circle's cross-chain system that moves USDC between blockchains (CCTP) | When your users need to send or receive USDC across chains |
+
+Here will explore the Native approach.
+
+### Native USDC Integration
+
+Native USDC behaves like any other ERC-20 token.
+You can read balances, approve spenders, and transfer tokens directly on the Polygon network.
+
+Here's a minimal example using [viem](https://viem.sh/):
+
+```ts
+// pnpm add viem
+import { createPublicClient, createWalletClient, http, parseUnits } from "viem";
+import { polygon } from "viem/chains";
+import { privateKeyToAccount } from "viem/accounts";
+
+// Native USDC contract on Polygon PoS (not bridged USDC.e)
+const USDC = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
+
+const erc20 = [
+  { type: "function", name: "decimals", stateMutability: "view", inputs: [], outputs: [{ type: "uint8" }] },
+  { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ type: "address" }], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "transfer", stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "uint256" }], outputs: [{ type: "bool" }] },
+];
+
+const account = privateKeyToAccount(process.env.PRIV_KEY as `0x${string}`);
+const rpc = http(process.env.POLYGON_RPC_URL);
+const pub = createPublicClient({ chain: polygon, transport: rpc });
+const wallet = createWalletClient({ chain: polygon, transport: rpc, account });
+
+async function main() {
+  const me = account.address;
+  const decimals = await pub.readContract({ address: USDC, abi: erc20, functionName: "decimals" });
+  const bal = await pub.readContract({ address: USDC, abi: erc20, functionName: "balanceOf", args: [me] });
+  console.log("Balance:", Number(bal) / 10 ** Number(decimals), "USDC");
+
+  // Send 1 USDC
+  const amount = parseUnits("1", Number(decimals));
+  const hash = await wallet.writeContract({ address: USDC, abi: erc20, functionName: "transfer", args: ["0xRecipient...", amount] });
+  console.log("tx:", hash);
+}
+
+main();
+```
+
+That's it! Simple, fast, and Polygon-native.

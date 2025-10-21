@@ -1,0 +1,148 @@
+---
+title: "Stripe On-Ramp Tutorial"
+description: "How to integrate Stripe on-ramp into your application"
+---
+
+Use Stripe's Crypto On-Ramp API to let users buy USDC on Polygon directly inside
+your app. You'll create an on-ramp session on the backend and render Stripe's
+hosted widget on the frontend.
+
+
+You will achieve:
+
+- Create a Stripe Crypto On-Ramp session via API
+- Pass client_secret securely to the frontend
+- Render a live fiat-to-Polygon USDC purchase widget
+
+<Callout type="warning" title="Security notice">
+All examples below are **demonstrations only**.  
+In production, never expose `STRIPE_SECRET_KEY` or private wallet keys in client code — store them in a **secure vault or secrets manager**.
+</Callout>
+
+## Overview
+
+Stripe's Crypto On-Ramp lets users convert fiat (e.g., USD) to supported crypto assets such as USDC on Polygon.
+
+### Requirements
+
+- A US-based business entity (excluding Hawaii)
+- [Stripe account](https://dashboard.stripe.com/)
+- On-Ramp feature enabled (automatically appears after compliance verification)
+- API key (sk_test_… or sk_live_…)
+
+### Reference docs
+
+- [Stripe API - Crypto On-Ramp Sessions](https://docs.stripe.com/crypto/onramp_sessions)
+- [Stripe Node SDK](https://github.com/stripe/stripe-node)
+
+## Schema
+
+
+| name                              | type   | required | example                   | description                                    |
+|------------------------------------|--------|----------|---------------------------|------------------------------------------------|
+| destination_currency               | string | ✅        | `"usdc"`                  | The target crypto asset                        |
+| destination_network                | string | ✅        | `"polygon"`               | Blockchain network                             |
+| wallet_address[0][type]               | string | ✅        | `"self_custody"`          | Type of wallet                                 |
+| wallet_address[0][address]       | string | ✅        | `"0xYourPolygonAddress"`  | Destination wallet address                     |
+| STRIPE_SECRET_KEY                  | string | ✅        | `"sk_test_..."`           | Your Stripe API key (server-side only)         |
+
+## Create Session cURL
+
+Run this on your backend server only (never in a browser):
+
+```bash
+curl https://api.stripe.com/v1/crypto/onramp_sessions \
+  -u sk_test_your_secret_key: \
+  -d destination_currency=usdc \
+  -d destination_network=polygon \
+  -d wallet_addresses[0][type]=self_custody \
+  -d wallet_addresses[0][address]=0xYOUR_POLYGON_ADDRESS
+```
+
+If successful, Stripe returns a JSON response containing a client_secret:
+
+```json
+{
+  "id": "cos_0MYvmj589O8KAxCGp14dTjiw",
+  "object": "crypto.onramp_session",
+  "client_secret": "cos_0MYvmj589O8KAxCGp14dTjiw_secret_BsxEqQLiYKANcTAoVnJ2ikH5q002b9xzouk",
+  "created": 1675794053,
+  "livemode": false
+}
+```
+
+## Bun / NodeJS backend
+
+```ts
+import Stripe from "stripe";
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+export async function createOnrampSession(req, res) {
+  const session = await stripe.crypto.onramps.sessions.create({
+    destination_currency: "usdc",
+    destination_network: "polygon",
+    wallet_addresses: [
+      { type: "self_custody", address: "0xYOUR_POLYGON_ADDRESS" }
+    ],
+    // optional: customer, email, reference
+  });
+  res.json({ client_secret: session.client_secret });
+}
+```
+
+## Serve to Frontend
+
+Pass only the client_secret to your client app — never your Stripe secret key.
+
+```html
+<script src="https://js.stripe.com/v3/crypto/onramp.js"></script>
+<div id="onramp"></div>
+
+<script>
+(async () => {
+  // Fetch client_secret from your backend
+  const { client_secret } = await fetch("/api/create-onramp-session").then(r => r.json());
+
+  const onramp = await window.StripeOnramp.init({
+    clientSecret: client_secret,
+    appearance: {
+      theme: "light", // optional UI customization
+    },
+  });
+
+  onramp.mount("#onramp");
+})();
+</script>
+```
+
+Users can now buy USDC on Polygon directly from your site.
+
+The funds are sent to the wallet specified in your `onramp_session`.
+
+## Extra
+
+Debugging, sanity checks, and guardrails.
+
+### Do / Don't Do Guardrails
+
+| ✅ Do                                              | ❌ Don't                                       |
+|----------------------------------------------------|------------------------------------------------|
+| Store API keys in a vault, not in code             | Hardcode `STRIPE_SECRET_KEY` in frontend       |
+| Use Stripe Sandbox first                           | Test with live key before compliance is cleared|
+| Log only non-sensitive session info                | Log full `client_secret` values                |
+
+### Errors
+
+| code                    | meaning                         | fix                              |
+|-------------------------|---------------------------------|----------------------------------|
+| 403_access_denied       | Onramp not enabled              | Wait for compliance review       |
+| 400_invalid_wallet_address | Bad or unsupported wallet      | Verify address format            |
+| 401_unauthorized        | Wrong API key                   | Use correct/test or live key     |
+
+### Quick Checklist
+
+- Backend has `STRIPE_SECRET_KEY` set
+- Frontend only receives `client_secret`
+- Wallet address is valid on Polygon
+- Tested in Sandbox before production
+
