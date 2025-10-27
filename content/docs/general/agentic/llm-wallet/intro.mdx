@@ -5,7 +5,10 @@ description: "Universal MCP server providing wallet capabilities and x402 microp
 
 # LLM Wallet MCP Server
 
-Universal MCP (Model Context Protocol) server providing wallet capabilities and x402 micropayment functionality to any AI agent. This server enables AI agents to create wallets, manage spending limits, and automatically handle micropayments for paid APIs.
+Universal [MCP](https://modelcontextprotocol.io/) (Model Context Protocol)
+server providing wallet capabilities and x402 micropayment functionality to any
+AI agent. The tool enables AI agents to create wallets, manage spending limits,
+and automatically handle micropayments for paid APIs.
 
 ## Video Introduction
 
@@ -18,6 +21,8 @@ Install the LLM Wallet MCP server:
 ```bash
 npm i llm-wallet-mcp
 ```
+
+View the source code on [GitHub](https://github.com/AkshatGada/x402_Polygon/).
 
 ## What This MCP Server Does
 
@@ -316,25 +321,25 @@ NETWORK=polygon @LLM Wallet create wallet with label "prod-wallet"
 - Restart your MCP client completely (Cursor: Cmd+Q, then reopen)
 - Verify `~/.cursor/mcp.json` is valid JSON
 - Check the path to `dist/index.js` is correct and absolute
-- ✅ Ensure the MCP server builds successfully: `npm run build`
+- Ensure the MCP server builds successfully: `npm run build`
 
 **"Wallet not found" error**
-- ✅ Create a wallet first: `@LLM Wallet create wallet with label "my-wallet"`
-- ✅ Or import existing: `@LLM Wallet import wallet with private key 0x...`
+- Create a wallet first: `@LLM Wallet create wallet with label "my-wallet"`
+- Or import existing: `@LLM Wallet import wallet with private key 0x...`
 
 **"Payment exceeds limit" error**
-- ✅ Check current limits: `@LLM Wallet check current spending limits`
-- ✅ Increase limits: `@LLM Wallet set spending limits: max $1.00 per transaction`
+- Check current limits: `@LLM Wallet check current spending limits`
+- Increase limits: `@LLM Wallet set spending limits: max $1.00 per transaction`
 
 **"Insufficient balance" error**
-- ✅ Check balance: `@LLM Wallet check balance for my-wallet`
-- ✅ Get test USDC from faucet (for testnets)
-- ✅ Ensure you're on the correct network
+- Check balance: `@LLM Wallet check balance for my-wallet`
+- Get test USDC from faucet (for testnets)
+- Ensure you're on the correct network
 
 **"Verification failed" error**
-- ✅ Verify facilitator URL is correct in environment variables
-- ✅ Check network connectivity to facilitator
-- ✅ Ensure wallet has sufficient USDC balance
+- Verify facilitator URL is correct in environment variables
+- Check network connectivity to facilitator
+- Ensure wallet has sufficient USDC balance
 
 ### Debug Mode
 
@@ -349,22 +354,6 @@ Test if MCP server is responding:
 ```bash
 echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | node dist/index.js
 ```
-
-## 🔒 Security Best Practices
-
-### Wallet Security
-- ✅ **Use strong encryption keys** (32+ characters, generated randomly)
-- ✅ **Store encryption keys securely** (environment variables, not in code)
-- ✅ **Use testnet for development** (Polygon Amoy, Base Sepolia)
-- ✅ **Set appropriate spending limits** (per-transaction and daily caps)
-- ✅ **Monitor payment history** regularly
-
-### Production Deployment
-- ✅ **Use HTTPS** for all communications
-- ✅ **Implement rate limiting** to prevent abuse
-- ✅ **Regular backups** of wallet data
-- ✅ **Monitor logs** for suspicious activity
-- ✅ **Use mainnet only** when ready for production
 
 ### Environment Security
 ```bash
@@ -382,25 +371,6 @@ export NETWORK="polygon-amoy"  # Use testnet for development
 **Storage Service**: Persists wallets, limits, and payment history
 **X402 Service**: Handles x402 protocol interactions (buyer-side only)
 **Tool Handlers**: MCP tool implementations with input validation
-
-## 📚 Additional Resources
-
-### Documentation
-- **x402 Protocol**: [GitHub Repository](https://github.com/coinbase/x402)
-- **Model Context Protocol**: [Official Documentation](https://modelcontextprotocol.io/)
-- **Viem**: [Ethereum TypeScript Library](https://viem.sh/)
-
-### Related Projects
-- **x402**: TypeScript/JavaScript SDK for x402 protocol
-- **x402-fetch**: Automatic 402 response handling
-- **x402-express**: Express.js middleware for x402
-
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
----
 
 
 
