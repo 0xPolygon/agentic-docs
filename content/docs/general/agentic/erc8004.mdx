@@ -1,0 +1,157 @@
+---
+title: "ERC-8004 on Polygon"
+description: "Identity, Reputation, and Validation registries for trustless agents"
+---
+
+**ERC-8004** defines a lightweight, on-chain trust layer for autonomous agents
+using three registries - **Identity**, **Reputation**, and **Validation** -
+designed to work with existing agent protocols (A2A, MCP). Payments are out of
+scope for the standard; however, payment proofs (e.g., from **x402**) can be
+referenced in reputation data.
+
+**You will learn**
+
+- What ERC-8004 is and why it exists  
+- How Identity/Reputation/Validation registries fit together  
+- How it complements A2A and MCP (not replaces them)  
+- Where to find the **Polygon** and **Polygon Amoy** deployments and how to
+  query them
+
+## Why ERC-8004?
+
+Modern agent stacks (e.g., Google's **A2A** for agent-to-agent coordination and
+Anthropic's **MCP** for tool/data access) focus on *communication* and
+*capability exposure*, not on open discovery and trust across
+organizational boundaries. ERC-8004 adds that missing piece with standard
+on-chain registries that any chain can host as singletons.
+
+- **A2A** provides agent authentication, capability advertisement via *Agent
+  Cards*, and orchestration; it does not standardize reputation or validation.  
+- **MCP** connects LLM apps to external tools/data - it similarly leaves
+  trust/discovery to applications. 
+  
+ERC-8004 links agents to MCP/A2A endpoints through an on-chain identity, with
+optional trust signals.
+
+---
+
+## What ERC-8004 standardizes (at a glance)
+
+- **Identity Registry** - an **ERC-721 + URIStorage** registry that mints an
+  *Agent ID* (`agentId`) and points its `tokenURI` to a JSON registration file
+  (e.g., on IPFS/HTTPS) listing A2A/MCP endpoints, DIDs, ENS, wallets, etc.
+  Ownership of the NFT = ownership of the agent entry.
+- **Reputation Registry** - an interface for clients to submit **feedback**
+  (score `0-100`, optional tags, and an optional off-chain file/URI + hash).
+  Off-chain files may include **payment proofs** to correlate economics with
+  feedback.  
+- **Validation Registry** - a request/response log for **independent
+  validators** (e.g., stake-based re-execution, zkML verifiers, TEEs) to post
+  attestations about an agent's work. Results can be queried on-chain.
+
+<Callout type="note" title="Orthogonality"> Payments are **orthogonal** to
+ERC-8004; the spec shows how **x402** proofs can be referenced in reputation
+data but does not dictate any settlement flow. </Callout>
+
+## Polygon deployments
+
+### Amoy
+
+- **IdentityRegistry:** [0x8004ad19E14B9e0654f73353e8a0B600D46C2898](https://amoy.polygonscan.com/address/0x8004ad19E14B9e0654f73353e8a0B600D46C2898)
+- **ReputationRegistry:** [0x8004B12F4C2B42d00c46479e859C92e39044C930](https://amoy.polygonscan.com/address/0x8004B12F4C2B42d00c46479e859C92e39044C930)
+- **ValidationRegistry:** [0x8004C11C213ff7BaD36489bcBDF947ba5eee289B](https://amoy.polygonscan.com/address/0x8004C11C213ff7BaD36489bcBDF947ba5eee289B)
+
+Polygon mainnet is coming soon.
+
+---
+
+## Minimal examples (read-only)
+
+> Below are deterministic, read-only snippets using `viem`. They assume the
+> Amoy addresses above and will work even before you mint/register agents -
+> though `tokenURI/ownerOf` will only resolve for existing `agentId`s.
+
+```ts
+import { createPublicClient, http } from "viem";
+import { polygonAmoy } from "viem/chains";
+import "dotenv/config";
+
+const IDENTITY = "0x8004ad19E14B9e0654f73353e8a0B600D46C2898" as const;
+const REPUTATION = "0x8004B12F4C2B42d00c46479e859C92e39044C930" as const;
+const VALIDATION = "0x8004C11C213ff7BaD36489bcBDF947ba5eee289B" as const;
+
+const erc721View = [
+  { type: "function", name: "name", stateMutability: "view", inputs: [], outputs: [{ type:"string" }] },
+  { type: "function", name: "symbol", stateMutability: "view", inputs: [], outputs: [{ type:"string" }] },
+  { type: "function", name: "tokenURI", stateMutability: "view", inputs: [{ type:"uint256" }], outputs: [{ type:"string" }] },
+];
+
+const validationView = [
+  { type:"function", name:"getValidationStatus", stateMutability:"view",
+    inputs:[{type:"bytes32"}],
+    outputs:[{type:"address"},{type:"uint256"},{type:"uint8"},{type:"bytes32"},{type:"uint256"}] },
+];
+
+async function main() {
+  const pub = createPublicClient({ chain: polygonAmoy, transport: http() });
+
+  // Identity registry metadata
+  const name = await pub.readContract({ address: IDENTITY, abi: erc721View, functionName: "name" });
+  const symbol = await pub.readContract({ address: IDENTITY, abi: erc721View, functionName: "symbol" });
+  console.log({ name, symbol }); // e.g., "Agent Identity", "AGNT"
+
+  // Sample agentId=1 (will throw if not yet minted)
+  // const uri = await pub.readContract({ address: IDENTITY, abi: erc721View, functionName: "tokenURI", args:[1n] });
+  // console.log({ uri });
+
+  // Check a validation status by requestHash (bytes32)
+  // const reqHash = "0x" + "00".repeat(32) as `0x${string}`;
+  // const status = await pub.readContract({ address: VALIDATION, abi: validationView, functionName: "getValidationStatus", args:[reqHash] });
+  // console.log({ status });
+}
+main();
+```
+
+### Where these come from in the spec
+
+- Identity uses ERC-721 + URIStorage (hence tokenURI and ownership semantics). 
+- Validation exposes getValidationStatus/getSummary to query results.
+
+<Callout type="note" title="Future proofing and backwards compatibility">
+You can use more
+[modern interfaces and standards backwards compatible with ERC-721](https://eips.ethereum.org/EIPS/eip-6220)
+to access the same values if you wish.
+</Callout>
+
+### How it fits with A2A, MCP, and x402
+
+A2A (Agent-to-Agent) remains the coordination layer (auth, agent cards,
+lifecycle). ERC-8004 adds discovery + trust so agents from different orgs can
+find and assess each other.
+
+MCP remains the tool/data layer. The ERC-8004 Identity record can link to MCP
+endpoints so agent wallets or marketplaces can enumerate capabilities
+consistently.
+
+x402 stays the payment layer. ERC-8004 is payment-agnostic; you can optionally
+embed payment proofs (e.g., x402 tx hashes) in off-chain feedback files
+referenced by the Reputation registry.
+
+## Design goals and recent status
+
+ERC-8004 is an ERC (Standards Track) proposal created Aug 13, 2025, currently
+under public review.
+
+It introduces pluggable trust models (reputation, crypto-economic validation,
+zk/TEE attestations) with security proportional to value at risk - from casual
+tasks to high-stakes use cases. The registries are intended to be per-chain
+singletons for straightforward discovery.
+
+Community discussion continues (e.g., handling on-chain vs off-chain data,
+encouraging multiple independent reputation providers, and keeping payments
+decoupled while allowing payment proofs to be referenced).
+
+The bulk of development discussion is happening in the Telegram group
+[ERC-8004 Builders](https://t.me/ERC8004) or the
+[Magicians forum thread](https://ethereum-magicians.org/t/erc-8004-trustless-agents/25098).
+
