@@ -1,16 +1,16 @@
 ---
-title: "Stripe Onramp Tutorial"
-description: "How to integrate Stripe Onramp into your application"
+title: "Stripe On-Ramp Tutorial"
+description: "How to integrate Stripe on-ramp into your application"
 ---
 
-Use Stripe's Crypto Onramp API to let users buy USDC on Polygon directly inside
-your app. You'll create an Onramp session on the backend and render Stripe's
+Use Stripe's Crypto On-Ramp API to let users buy USDC on Polygon directly inside
+your app. You'll create an on-ramp session on the backend and render Stripe's
 hosted widget on the frontend.
 
 
 You will achieve:
 
-- Create a Stripe Crypto Onramp session via API
+- Create a Stripe Crypto On-Ramp session via API
 - Pass client_secret securely to the frontend
 - Render a live fiat-to-Polygon USDC purchase widget
 
@@ -21,18 +21,18 @@ In production, never expose `STRIPE_SECRET_KEY` or private wallet keys in client
 
 ## Overview
 
-Stripe's Crypto Onramp lets users convert fiat (e.g., USD) to supported crypto assets such as USDC on Polygon.
+Stripe's Crypto On-Ramp lets users convert fiat (e.g., USD) to supported crypto assets such as USDC on Polygon.
 
 ### Requirements
 
 - A US-based business entity (excluding Hawaii)
 - [Stripe account](https://dashboard.stripe.com/)
-- Onramp feature enabled (automatically appears after compliance verification)
+- On-Ramp feature enabled (automatically appears after compliance verification)
 - API key (sk_test_… or sk_live_…)
 
 ### Reference docs
 
-- [Stripe API - Crypto Onramp Sessions](https://docs.stripe.com/crypto/onramp_sessions)
+- [Stripe API - Crypto On-Ramp Sessions](https://docs.stripe.com/crypto/onramp_sessions)
 - [Stripe Node SDK](https://github.com/stripe/stripe-node)
 
 ## Schema
