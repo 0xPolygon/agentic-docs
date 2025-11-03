@@ -13,7 +13,7 @@ import { createRelativeLink } from 'fumadocs-ui/mdx';
 export default async function Page(props: PageProps<'/[[...slug]]'>) {
   const params = await props.params;
   const isRoot = !params.slug?.length;
-  const slug = isRoot ? ['general'] : params.slug;
+  const slug = isRoot ? ['general'] : params.slug!;
   const page = source.getPage(slug);
   if (!page) notFound();
 
