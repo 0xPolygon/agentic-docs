@@ -22,7 +22,7 @@ Install the LLM Wallet MCP server:
 npm i llm-wallet-mcp
 ```
 
-View the source code on [GitHub](https://github.com/AkshatGada/x402_Polygon/).
+View the source code on [GitHub](https://github.com/0xPolygon/apk-mcp-llm-wallet).
 
 ## What This MCP Server Does
 
@@ -76,7 +76,9 @@ In your MCP client, you should now see **18 tools** available:
 - 5 x402 seller tools
 - 4 dynamic API tools
 
-> **⚠️ Development Notice**: This package is still in development. Please prefer to use on testnet (polygon-amoy) or if using on mainnet, use only small amounts. Do not use in production environments.
+> **⚠️ Development Notice**: This package is still in development. Please prefer
+> to use on testnet (polygon-amoy) or if using on mainnet, use only small
+> amounts. Do not use in production environments.
 
 ## Complete Buyer-Side Flow Example
 
@@ -243,14 +245,17 @@ Call the weather_api tool with location "London"
 - **`wallet_get_limits`** - Get current limits and daily usage statistics
 
 ### x402 Buyer Tools (2 tools)
-- **`x402_check_payment`** - Pre-check if wallet can afford payment (before making it)
+- **`x402_check_payment`** - Pre-check if wallet can afford payment (before
+  making it)
 - **`x402_pay`** - Make payment to x402-protected resource using x402-fetch
 
 ### x402 Seller Tools (5 tools)
 - **`seller_verify_payment`** - Verify incoming payment from buyer
 - **`seller_settle_payment`** - Settle verified payment on-chain
-- **`seller_decode_payment`** - Decode payment header without calling facilitator
-- **`seller_create_requirements`** - Generate payment requirements for protected resource
+- **`seller_decode_payment`** - Decode payment header without calling
+  facilitator
+- **`seller_create_requirements`** - Generate payment requirements for protected
+  resource
 - **`seller_generate_402_response`** - Generate 402 Payment Required response
 
 ### Dynamic API Tools (4 tools)
