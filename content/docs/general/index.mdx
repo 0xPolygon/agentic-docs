@@ -1,95 +1,88 @@
 ---
-title: "Introduction"
-description: "Polygon Payments Documentation"
+title: "Agentic Payments on Polygon"
+description: "Agentic Payments on Polygon"
 ---
 
 ## Overview
 
-Launch payments on Polygon to benefit from ultra low cost transactions, a
-compliant and reliable network, and worldwide distribution.
+**Agentic Payments** represent a new frontier for finance and commerce onchain:
+**keyless**, **wallet-less**, and **infrastructure-agnostic**.  
+
+Here, you'll find the foundation for the agentic future by open-sourcing the
+critical components: developer tools, payment facilitators, SDKs, reference
+agents, and model prompts.
+
+Our goal is to make payments as natural for agents as browsing a web page:
+secure, interoperable, and composable across chains, protocols, and apps.
 
 > See also:
 > [Polygon Payments 101](https://polygon.technology/blog/polygon-payments-101-a-guide-to-building-payments-on-polygon)
 
-## Exchanges, On- and Off-ramps
-
-Polygon is the choice for major payment projects due to the hundreds of
-third-party options available on the network. Integrate with exchanges and on-
-and offramps to get crypto-to-fiat exposure in 150+ countries.
-
-Some of the major payment infrastructure projects Polygon supports:
-
-- [Stripe](https://docs.stripe.com/crypto/stablecoin-payments) - [Tutorial](tutorials/onramps-stripe)
-- [Shopify](https://depay.com/plugins/shopify)
-- [Moonpay](https://dev.moonpay.com/docs/on-ramp-overview)
-- [Bridge](https://apidocs.bridge.xyz/)
-- [Revolut](https://www.revolut.com/en-US/)
-- [Blindpay](https://blindpay.com/docs/getting-started/quick-start-payin)
-- [Payy](https://payy.link/)
-- [Avenia](https://avenia.io/)
-- [Crossmint](https://crossmint.io/)
-- [Transak](https://docs.transak.com/)
-- [Ramp](https://docs.rampnetwork.com/)
-- [Electrocoin](https://electrocoin.eu)
-
-Stablecoins available on Polygon:
-
-- [USDT](https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f)
-- [USDC](https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359)
-  - [Tutorial: Native integration](tutorials/usdc-native-integration)
-  - [Tutorial: Gateway integration](tutorials/usdc-gateway-integration)
-- [AUSD](https://polygonscan.com/token/0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a)
-- [DAI](https://polygonscan.com/token/0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063)
-- [Frax (Legacy)](https://polygonscan.com/token/0x45c32fA6DF82ead1e2EF74d17b76547EDdFaFF89)
-
-## Fast, Ultra-Low Cost, Fast-finalizing Transactions
-
-With the upgrade to Heimdall v2, deterministic finality on Polygon chain has
-been sped up to between 2-5 seconds thanks to the 1-2 seconds block time in
-Heimdall, meaning milestones are voted on and finalized much faster.
-
-Fast finality means payments will be immediately available for your users.
-
-Further, with the
-[Rio upgrade](https://polygon.technology/blog/polygon-launches-major-payments-upgrade-with-rio-faster-lighter-and-easier-to-build),
-the Polygon PoS network strengthens its value-proposition as a payments-first
-chain by achieving **near-instant finality** and **ultra-light node
-participation** while maintaining ultra-low gas costs.
-
-The new block-production architecture — the Validator-Elected Block Producer
-(VEBloP) model — elects a small pool of producers per span, which greatly
-shortens block times and, crucially, eliminates chain reorganisations (reorgs).
-
-Payments and real-world asset flows can settle with the same immediacy you'd
-expect from traditional rails, but at a tiny fraction of the cost and with
-significantly higher throughput. For example, Rio enables up to **5,000 tps** in
-the near term.
-
-In addition to performance, Rio dramatically lowers the cost and complexity for
-infrastructure operators, which translates into lower cost for users. The
-upgrade introduces stateless (witness-based) validation (PIP-72) so nodes no
-longer need to store the full chain state, slashing hardware, storage and sync
-time costs.
-
-Combined with the more efficient architecture, this means lower compute burden
-and the removal of reorg risk, which means a much tighter cost-base and a stronger
-finality guarantee.
-
-## Network uptime
-
-Polygon is a rock of stability that provides 99.999% network uptime. You can
-always check the status of Polygon’s mainnet and testnet network
-[here](https://status.polygon.technology/).
-
-## Compliance
-
-Business payments require serious compliance. Polygon has the major providers on
-its platform, including:
-
-- [SumSub](https://docs.sumsub.com/docs/overview)
-- [Onfido](https://documentation.onfido.com/)
-- [Persona](https://docs.withpersona.com/getting-started)
-- [Chainalysis](https://www.chainalysis.com/)
-- [TRM](https://www.trmlabs.com/)
-- [Forta](https://docs.forta.network/en/latest/)
-- [Elliptic](https://developers.elliptic.co/docs/getting-started)
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', margin: '2rem 0', '@media (maxWidth: 768px)': { gridTemplateColumns: '1fr' } }}>
+  <a href="/general/agent-integration/intro" style={{ textDecoration: 'none', color: 'inherit' }}>
+    <div style={{ 
+      border: '1px solid #e2e8f0', 
+      borderRadius: '8px', 
+      padding: '1.5rem',
+      background: 'var(--fd-background)',
+      transition: 'all 0.2s ease',
+      cursor: 'pointer',
+      ':hover': {
+        borderColor: 'var(--fd-primary)',
+        transform: 'translateY(-2px)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+      }
+    }}>
+      <h3 style={{ marginTop: 0, color: 'var(--fd-primary)' }}>Agent Integration</h3>
+      <p style={{ marginBottom: 0 }}>
+        Learn about agentic commerce and find tutorials for AI-powered tooling such as ERC-8004 
+        standard, LLM wallet MCP and more.
+        
+      </p>
+    </div>
+  </a>
+  
+  <a href="/general/x402/how-it-works" style={{ textDecoration: 'none', color: 'inherit' }}>
+    <div style={{ 
+      border: '1px solid #e2e8f0', 
+      borderRadius: '8px', 
+      padding: '1.5rem',
+      background: 'var(--fd-background)',
+      transition: 'all 0.2s ease',
+      cursor: 'pointer',
+      ':hover': {
+        borderColor: 'var(--fd-primary)',
+        transform: 'translateY(-2px)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+      }
+    }}>
+      <h3 style={{ marginTop: 0, color: 'var(--fd-primary)' }}>x402 on Polygon</h3>
+      <p style={{ marginBottom: 0 }}>
+        HTTP-based micropayment protocol for pay-per-use APIs and services. 
+        Monetize digital resources with automated payment flows.
+      </p>
+    </div>
+  </a>
+  
+  <a href="/general/stablecoins/offramps" style={{ textDecoration: 'none', color: 'inherit' }}>
+    <div style={{ 
+      border: '1px solid #e2e8f0', 
+      borderRadius: '8px', 
+      padding: '1.5rem',
+      background: 'var(--fd-background)',
+      transition: 'all 0.2s ease',
+      cursor: 'pointer',
+      ':hover': {
+        borderColor: 'var(--fd-primary)',
+        transform: 'translateY(-2px)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+      }
+    }}>
+      <h3 style={{ marginTop: 0, color: 'var(--fd-primary)' }}>Stablecoins</h3>
+      <p style={{ marginBottom: 0 }}>
+        Core payment infrastructure including exchanges, on-ramps, stablecoins, and compliance tools. 
+        Build traditional payment flows with crypto rails.
+      </p>
+    </div>
+  </a>
+</div>
