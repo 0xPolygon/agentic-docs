@@ -1,0 +1,6 @@
+{
+    "title": "Stablecoins",
+    "description": "Stablecoins",
+    "pages": ["offramps","onramps-stripe","usdc-gateway-integration","usdc-native-integration"]
+  
+  }
