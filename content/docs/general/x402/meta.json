@@ -1,3 +1,3 @@
 {
-    "pages": ["intro", "how-it-works", "autopay", "quickstart-buyers","quickstart-sellers","analytics", "x402-cli"]
+    "pages": ["intro", "how-it-works", "directory", "autopay", "quickstart-buyers","quickstart-sellers","analytics", "x402-cli"]
 }
