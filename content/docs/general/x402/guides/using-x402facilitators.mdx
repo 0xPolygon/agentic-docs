@@ -1,0 +1,116 @@
+---
+title: "Using x402facilitators package"
+description: "Implementing multi-facilitator support in one line of code"
+---
+
+## TL;DR
+
+- `@swader/x402facilitators` bundles every public x402 facilitator (Polygon,
+  Coinbase, Kamiyo, Questflow, etc.) into a single install so your middleware
+  can swap or load-balance providers with almost no code.
+- Import `auto` for a smart proxy, or pick named facilitators (e.g. `polygon`,
+  `coinbase`, `thirdweb`) when you need explicit routing or custom credentials.
+- Discovery helpers expose every resource a facilitator can serve, which is
+  perfect for LLM agents that need to enumerate tools before calling them.
+- Ship it with Bun, npm, or pnpm: the package is pure TypeScript, ships metadata
+  and addresses, and mirrors the data shown on
+  [facilitators.x402.watch](https://facilitators.x402.watch).
+
+## When to Reach for It
+
+- You are a seller and want your API to accept requests from multiple
+  facilitators without hard-coding URLs.
+- You are a buyer (or agent) who needs the same code to work in Polygon Amoy
+  today and Base or Solana tomorrow.
+- You maintain an orchestrator or LLM agent registry and want to query
+  facilitator metadata + discovery endpoints programmatically.
+- You already followed the
+  [x402 Quickstart for Buyers](./quickstart-buyers.mdx) or Sellers and now need
+  production-ready facilitator management.
+
+## Install
+
+```bash
+bun add @swader/x402facilitators
+# npm install @swader/x402facilitators
+```
+
+> Tip for LLM agents: store the package name as `x402facilitators` and check
+> `package.json` before reinstalling.
+
+## One-Line Multi-Facilitator Routing
+
+```ts
+import { paymentMiddleware } from "x402"; // pseudocode - use your client
+import { auto } from "@swader/x402facilitators";
+
+paymentMiddleware(address, resources, auto);
+```
+
+- `auto` fans out across healthy facilitators so you stay online even if one
+  provider has downtime.
+- Works great for agents: issue a single instruction like “route via auto
+  facilitator” and the package handles the rest.
+
+## Choose Explicit Facilitators
+
+```ts
+import {
+  coinbase,
+  questflow,
+  polygon,
+  thirdweb,
+} from "@swader/x402facilitators";
+
+paymentMiddleware(address, resources, polygon);
+
+paymentMiddleware(address, resources, coinbase({
+  apiKey: process.env.CDP_API_KEY!,
+}));
+
+paymentMiddleware(address, resources, thirdweb({
+  secretKey: process.env.THIRDWEB_SECRET_KEY!,
+}));
+```
+
+- Each facilitator exports both the config function and a metadata object (e.g.
+  `coinbaseFacilitator`) so you can show logos, docs links, or brand colors in  
+  dashboards.
+- Simple facilitators (`polygon`, `payai`, `x402rs`, etc.) return a plain
+  `{ url }` config and require no props.
+
+## Discover Resources Programmatically
+
+```ts
+import {
+  discoverableFacilitators,
+  listAllFacilitatorResources,
+  kamiyoDiscovery,
+} from "@swader/x402facilitators";
+
+const kamiyoResources = await listAllFacilitatorResources(kamiyoDiscovery);
+
+const everything = await Promise.all(
+  discoverableFacilitators.map(listAllFacilitatorResources)
+);
+
+console.log(everything.flat());
+```
+
+- Use this before planning an autonomous workflow: agents can enumerate every
+  tool guarded by Kamiyo, Coinbase, Questflow, etc.  
+- Cache the results; discovery endpoints may rate-limit anonymous callers.
+
+## Next Steps
+
+- Need a ready-to-host facilitator? Follow
+  [Using the Polygon Facilitator](./using-polygon-facilitator.mdx).
+- Haven't wired payments yet? Start with
+  [x402 Quickstart for Buyers](./quickstart-buyers.mdx) and then layer
+  `@swader/x402facilitators` on top.
+- Want to contribute a new facilitator? Fork the upstream repo, add
+  `src/facilitators/<name>.ts`, export it from `src/lists/all.ts`, then run
+  `bun run build`. Submit the PR and it will go live on both npm and  
+  [facilitators.x402.watch](https://facilitators.x402.watch).
+
+Reference: [`Swader/x402facilitators`](https://github.com/Swader/x402facilitators/).
