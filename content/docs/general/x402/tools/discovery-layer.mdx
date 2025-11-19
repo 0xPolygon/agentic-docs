@@ -21,42 +21,16 @@ curl "https://x402-discovery.up.railway.app/discovery/resources?q=weather"
 **Response:**
 ```json
 {
-  "data": [
+  "items": [
     {
-      "id": "550e8400-e29b-41d4-a716-446655440000",
       "resource": "https://api.weather.com/v1/current",
-      "description": "Real-time weather data API",
-      "provider": "WeatherCo",
-      "facilitator": "polygon",
-      "keywords": ["weather", "climate", "forecast"],
-      "url": "https://docs.weather.com",
+      "type": "http",
       "x402Version": 1,
-      "schema": {
-        "input": {
-          "type": "http",
-          "method": "GET",
-          "queryParams": {
-            "location": {
-              "type": "string",
-              "required": true,
-              "description": "City name or coordinates"
-            },
-            "units": {
-              "type": "string",
-              "required": false,
-              "description": "Temperature units (metric/imperial)"
-            }
-          }
-        }
-      }
+      "lastUpdated": "2025-11-19T01:25:58.509Z",
+      "metadata": {},
+      "accepts": []
     }
-  ],
-  "pagination": {
-    "total": 1,
-    "limit": 20,
-    "offset": 0,
-    "hasMore": false
-  }
+  ]
 }
 ```
 
@@ -112,15 +86,16 @@ Use the discovered resource URL with your x402 client to make payments and acces
 const response = await fetch(
   "https://x402-discovery.up.railway.app/discovery/resources?q=weather"
 );
-const { data } = await response.json();
-const weatherAPI = data[0];
+const { items } = await response.json();
+const weatherAPI = items[0];
 
-// 2. Read the schema to understand usage
-console.log("API Method:", weatherAPI.schema.input.method);
-console.log("Required params:", weatherAPI.schema.input.queryParams);
+// 2. Use the discovered resource
+console.log("API Resource:", weatherAPI.resource);
+console.log("Type:", weatherAPI.type);
+console.log("Last Updated:", weatherAPI.lastUpdated);
 
-// 3. Use with x402 client
-const apiResponse = await fetch(weatherAPI.resource + "?location=London");
+// 3. Fetch payment requirements from the endpoint
+const apiResponse = await fetch(weatherAPI.resource);
 // Handle 402 response and make payment with x402 client
 ```
 
