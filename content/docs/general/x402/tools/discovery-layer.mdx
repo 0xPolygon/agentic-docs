@@ -27,30 +27,70 @@ curl "https://x402-discovery.up.railway.app/discovery/resources?q=weather"
       "type": "http",
       "x402Version": 1,
       "lastUpdated": "2025-11-19T01:25:58.509Z",
-      "metadata": {},
-      "accepts": []
+      "metadata": {
+        "provider": "WeatherData Inc",
+        "description": "Real-time weather forecasts with AI-powered predictions",
+        "keywords": ["weather", "forecast", "climate"],
+        "url": "https://docs.weatherdata.io",
+        "facilitator": "polygon"
+      },
+      "accepts": [
+        {
+          "asset": "USDC",
+          "network": "polygon",
+          "payTo": "0x1234567890123456789012345678901234567890",
+          "maxAmountRequired": "5.00",
+          "maxTimeoutSeconds": 86400,
+          "scheme": "x402",
+          "mimeType": "application/json",
+          "resource": "https://api.weather.com/v1/current",
+          "description": "Access real-time weather data",
+          "outputSchema": {
+            "input": {
+              "type": "http",
+              "method": "GET",
+              "queryParams": {
+                "location": {
+                  "type": "string",
+                  "required": true,
+                  "description": "City name or coordinates"
+                }
+              }
+            },
+            "output": {
+              "type": "object",
+              "format": "json",
+              "description": "Weather data response"
+            }
+          }
+        }
+      ]
     }
   ]
 }
 ```
 
-### Step 2: Review API Usage Schema
+### Step 2: Review API Usage from Accepts Array
 
-Check the `schema` field to understand how to call the API:
+The `accepts` array contains everything you need to use the API:
 
+- **Payment Requirements**: `asset`, `network`, `payTo`, `maxAmountRequired`, `maxTimeoutSeconds`
+- **API Documentation**: `outputSchema` with complete `input` and `output` definitions
+- **Method Details**: HTTP method, query parameters, body parameters, and their types
+- **Response Format**: Expected output format and structure
+
+The `outputSchema.input` field shows how to call the API:
 - **method**: HTTP method (GET, POST, etc.)
 - **queryParams**: Query string parameters and their types
 - **bodyParams**: Request body parameters (for POST/PUT)
 - **required**: Whether a parameter is mandatory
 
-The `url` field provides documentation links for more details.
+### Step 3: Get Fresh Payment Requirements (Optional)
 
-### Step 3: Get Payment Requirements
-
-To get current payment requirements, ping the x402 endpoint directly:
+While the Discovery Layer provides cached payment information in the `accepts` array, you can always fetch the latest requirements directly from the x402 endpoint:
 
 ```bash
-# Fetch payment details from the actual endpoint
+# Fetch current payment details from the actual endpoint
 curl "https://api.weather.com/v1/current"
 ```
 
@@ -61,20 +101,34 @@ curl "https://api.weather.com/v1/current"
   "error": "X-PAYMENT header is required",
   "accepts": [
     {
-      "scheme": "exact",
+      "scheme": "x402",
       "network": "polygon",
-      "maxAmountRequired": "5000",
+      "maxAmountRequired": "5.00",
       "payTo": "0x1234567890123456789012345678901234567890",
-      "maxTimeoutSeconds": 60,
-      "asset": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+      "maxTimeoutSeconds": 86400,
+      "asset": "USDC",
       "mimeType": "application/json",
-      "resource": "https://api.weather.com/v1/current"
+      "resource": "https://api.weather.com/v1/current",
+      "description": "Access real-time weather data",
+      "outputSchema": {
+        "input": {
+          "type": "http",
+          "method": "GET",
+          "queryParams": {
+            "location": {
+              "type": "string",
+              "required": true,
+              "description": "City name or coordinates"
+            }
+          }
+        }
+      }
     }
   ]
 }
 ```
 
-**Why ping the endpoint?** Payment requirements can change dynamically (prices, recipient addresses, supported networks). Always fetch fresh payment data from the source.
+**Why ping the endpoint?** Payment requirements can change dynamically (prices, recipient addresses, supported networks). The Discovery Layer provides a cached version, but for the most current data, query the source directly.
 
 ### Step 4: Integrate with Your App
 
@@ -94,9 +148,19 @@ console.log("API Resource:", weatherAPI.resource);
 console.log("Type:", weatherAPI.type);
 console.log("Last Updated:", weatherAPI.lastUpdated);
 
-// 3. Fetch payment requirements from the endpoint
-const apiResponse = await fetch(weatherAPI.resource);
-// Handle 402 response and make payment with x402 client
+// 3. Get payment requirements from the accepts array
+const acceptsInfo = weatherAPI.accepts[0];
+console.log("Payment Required:", acceptsInfo.maxAmountRequired, acceptsInfo.asset);
+console.log("Pay To:", acceptsInfo.payTo);
+console.log("Network:", acceptsInfo.network);
+
+// 4. Understand API usage from outputSchema
+const apiSchema = acceptsInfo.outputSchema;
+console.log("HTTP Method:", apiSchema.input.method);
+console.log("Parameters:", apiSchema.input.queryParams);
+
+// 5. Make payment with x402 client and call API
+// ... your x402 payment code here ...
 ```
 
 ### Step 5: Register Your API (Optional)
@@ -114,19 +178,37 @@ curl -X POST "https://x402-discovery.up.railway.app/discovery/resources" \
     "keywords": ["relevant", "keywords"],
     "url": "https://docs.yourservice.com",
     "x402Version": 1,
-    "schema": {
-      "input": {
-        "type": "http",
-        "method": "GET",
-        "queryParams": {
-          "param1": {
-            "type": "string",
-            "required": true,
-            "description": "Parameter description"
+    "accepts": [
+      {
+        "asset": "USDC",
+        "network": "polygon",
+        "payTo": "0xYourPaymentAddress",
+        "maxAmountRequired": "10.00",
+        "maxTimeoutSeconds": 86400,
+        "scheme": "x402",
+        "mimeType": "application/json",
+        "resource": "https://api.yourservice.com/v1/endpoint",
+        "description": "Access to your API service",
+        "outputSchema": {
+          "input": {
+            "type": "http",
+            "method": "GET",
+            "queryParams": {
+              "param1": {
+                "type": "string",
+                "required": true,
+                "description": "Parameter description"
+              }
+            }
+          },
+          "output": {
+            "type": "object",
+            "format": "json",
+            "description": "Response description"
           }
         }
       }
-    }
+    ]
   }'
 ```
 
@@ -143,7 +225,7 @@ curl -X POST "https://x402-discovery.up.railway.app/discovery/resources" \
     "keywords": ["relevant", "keywords"],
     "url": "https://docs.yourservice.com",
     "x402Version": 1,
-    "schema": { ... }
+    "accepts": [ ... ]
   }
 }
 ```
@@ -186,6 +268,57 @@ curl "https://x402-discovery.up.railway.app/discovery/resources?facilitator=thir
 curl "https://x402-discovery.up.railway.app/discovery/resources?q=crypto&facilitator=polygon&limit=5"
 ```
 
+### Response Format
+
+All discovery endpoints return the Coinbase-compatible format:
+
+```json
+{
+  "items": [
+    {
+      "accepts": [
+        {
+          "asset": "USDC",
+          "network": "polygon",
+          "payTo": "0x...",
+          "maxAmountRequired": "10.00",
+          "maxTimeoutSeconds": 86400,
+          "scheme": "x402",
+          "mimeType": "application/json",
+          "resource": "https://api.example.com/v1/endpoint",
+          "description": "API access description",
+          "extra": {},
+          "outputSchema": {
+            "input": {
+              "type": "http",
+              "method": "GET",
+              "queryParams": {},
+              "bodyParams": {}
+            },
+            "output": {
+              "type": "object",
+              "format": "json",
+              "description": "Response format"
+            }
+          }
+        }
+      ],
+      "lastUpdated": "2025-11-19T01:25:58.509Z",
+      "metadata": {
+        "provider": "Provider Name",
+        "description": "Service description",
+        "keywords": ["keyword1", "keyword2"],
+        "url": "https://docs.example.com",
+        "facilitator": "polygon"
+      },
+      "resource": "https://api.example.com/v1/endpoint",
+      "type": "http",
+      "x402Version": 1
+    }
+  ]
+}
+```
+
 ### Registering Your API
 
 #### Prepare Your Resource
@@ -200,24 +333,51 @@ curl "https://x402-discovery.up.railway.app/discovery/resources?q=crypto&facilit
   "keywords": ["relevant", "searchable", "keywords"],
   "url": "https://docs.yourservice.com",
   "x402Version": 1,
-  "schema": {
-    "input": {
-      "type": "http",
-      "method": "GET",
-      "queryParams": {
-        "param1": {
-          "type": "string",
-          "required": true,
-          "description": "Parameter description"
+  "accepts": [
+    {
+      "asset": "USDC",
+      "network": "polygon",
+      "payTo": "0xYourPaymentAddress",
+      "maxAmountRequired": "10.00",
+      "maxTimeoutSeconds": 86400,
+      "scheme": "x402",
+      "mimeType": "application/json",
+      "resource": "https://api.yourservice.com/v1/endpoint",
+      "description": "Access to your API service",
+      "extra": {
+        "additionalInfo": "any extra metadata"
+      },
+      "outputSchema": {
+        "input": {
+          "type": "http",
+          "method": "GET",
+          "queryParams": {
+            "param1": {
+              "type": "string",
+              "required": true,
+              "description": "Parameter description"
+            },
+            "param2": {
+              "type": "number",
+              "required": false,
+              "description": "Optional parameter"
+            }
+          }
         },
-        "param2": {
-          "type": "number",
-          "required": false,
-          "description": "Optional parameter"
+        "output": {
+          "type": "object",
+          "format": "json",
+          "description": "API response format",
+          "fields": {
+            "result": {
+              "type": "string",
+              "description": "Result field"
+            }
+          }
         }
       }
     }
-  }
+  ]
 }
 ```
 
@@ -229,29 +389,47 @@ curl "https://x402-discovery.up.railway.app/discovery/resources?q=crypto&facilit
 - `keywords` - Array of searchable keywords
 - `url` - Documentation URL for your API
 - `x402Version` - x402 protocol version (currently 1)
-- `schema` - API usage documentation showing how to call your endpoint
-  - `method` - HTTP method (GET, POST, etc.)
-  - `queryParams` or `bodyParams` - Parameter definitions
-  - For each parameter: `type`, `required`, `description`
+- `accepts` - Array of payment acceptance configurations, each containing:
+  - **Payment Info**: `asset`, `network`, `payTo`, `maxAmountRequired`, `maxTimeoutSeconds`
+  - **API Info**: `scheme`, `mimeType`, `resource`, `description`
+  - **Documentation**: `outputSchema` with complete input/output definitions
+  - **Extra Metadata**: `extra` object for any additional information
 
-**Schema format for POST APIs:**
+**OutputSchema format for POST APIs:**
 ```json
 {
-  "input": {
-    "type": "http",
-    "method": "POST",
-    "bodyParams": {
-      "data": {
-        "type": "string",
-        "required": true,
-        "description": "Input data"
+  "outputSchema": {
+    "input": {
+      "type": "http",
+      "method": "POST",
+      "bodyParams": {
+        "data": {
+          "type": "string",
+          "required": true,
+          "description": "Input data"
+        }
+      },
+      "bodyFields": {
+        "nested": {
+          "type": "object",
+          "required": false,
+          "description": "Nested object structure"
+        }
       }
     },
-    "headerFields": {
-      "Content-Type": {
-        "type": "string",
-        "required": true,
-        "description": "Must be application/json"
+    "output": {
+      "type": "object",
+      "format": "json",
+      "description": "Response format",
+      "fields": {
+        "status": {
+          "type": "string",
+          "description": "Operation status"
+        },
+        "data": {
+          "type": "object",
+          "description": "Response data"
+        }
       }
     }
   }
@@ -271,19 +449,32 @@ curl -X POST "https://x402-discovery.up.railway.app/discovery/resources" \
     "keywords": ["relevant", "keywords"],
     "url": "https://docs.yourservice.com",
     "x402Version": 1,
-    "schema": {
-      "input": {
-        "type": "http",
-        "method": "GET",
-        "queryParams": {
-          "id": {
-            "type": "string",
-            "required": true,
-            "description": "Resource identifier"
+    "accepts": [
+      {
+        "asset": "USDC",
+        "network": "polygon",
+        "payTo": "0xYourAddress",
+        "maxAmountRequired": "10.00",
+        "maxTimeoutSeconds": 86400,
+        "scheme": "x402",
+        "mimeType": "application/json",
+        "resource": "https://api.yourservice.com/v1/endpoint",
+        "description": "API access",
+        "outputSchema": {
+          "input": {
+            "type": "http",
+            "method": "GET",
+            "queryParams": {
+              "id": {
+                "type": "string",
+                "required": true,
+                "description": "Resource identifier"
+              }
+            }
           }
         }
       }
-    }
+    ]
   }'
 ```
 
@@ -297,13 +488,11 @@ curl "https://x402-discovery.up.railway.app/discovery/resources?limit=20&offset=
 curl "https://x402-discovery.up.railway.app/discovery/resources?limit=20&offset=20"
 ```
 
-Response includes `total`, `limit`, `offset`, and `hasMore` fields.
-
 ## Developer Workflow
 
 1. **Discover APIs** - Search the Discovery Layer for relevant x402 endpoints
-2. **Read Schema** - Understand API parameters and usage from the `schema` field
-3. **Ping Endpoint** - Fetch current payment requirements directly from the x402 endpoint
+2. **Read Accepts Array** - Get payment requirements and API documentation from the `accepts` field
+3. **Understand API** - Review `outputSchema` for complete API usage instructions
 4. **Make Payment** - Use x402 client to create and send payment
 5. **Call API** - Access the API with payment proof in headers
 
