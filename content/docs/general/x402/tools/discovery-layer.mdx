@@ -1,0 +1,226 @@
+---
+title: "x402 Discovery Layer"
+description: "A discovery API for finding and registering x402-enabled resources on Polygon"
+---
+
+The x402 Discovery Layer is a searchable registry of all x402-compatible APIs and services running on Polygon networks. It enables developers and AI agents to discover paywall-protected resources through a simple REST API.
+
+**Base URL:** `https://x402-discovery.up.railway.app`
+
+## How to Use
+
+### Step 1: Search for APIs
+
+Find x402-enabled resources by searching with keywords, filtering by network, or selecting a specific facilitator.
+
+```bash
+# Search for weather APIs on Polygon
+curl "https://x402-discovery.up.railway.app/discovery/resources?q=weather&network=polygon"
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "resource": "https://api.weather.com/v1/current",
+      "description": "Real-time weather data API",
+      "provider": "WeatherCo",
+      "facilitator": "polygon",
+      "keywords": ["weather", "climate", "forecast"],
+      "paymentRequirement": {
+        "scheme": "exact",
+        "network": "polygon",
+        "maxAmountRequired": "500000",
+        "payTo": "0x1234567890123456789012345678901234567890",
+        "maxTimeoutSeconds": 60,
+        "asset": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+      }
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "limit": 10,
+    "offset": 0,
+    "hasMore": false
+  }
+}
+```
+
+### Step 2: Review Payment Details
+
+Check the `paymentRequirement` object to understand the cost and payment details:
+
+- **maxAmountRequired**: `"500000"` = 0.5 USDC (amount in smallest unit)
+- **network**: `"polygon"` = Polygon mainnet
+- **asset**: Token contract address (USDC on Polygon)
+- **payTo**: Recipient address for payments
+
+### Step 3: Integrate with Your App
+
+Use the discovered resource URL with your x402 client to make payments and access the API.
+
+**TypeScript Example:**
+```typescript
+const response = await fetch(
+  "https://x402-discovery.up.railway.app/discovery/resources?q=weather&network=polygon"
+);
+const { data } = await response.json();
+
+const weatherAPI = data[0];
+
+// Use with x402 CLI or client library
+// bunx @swader/x402-cli ${weatherAPI.resource}
+```
+
+**Bash Example:**
+```bash
+# Discover and call API
+ENDPOINT=$(curl -s "https://x402-discovery.up.railway.app/discovery/resources?q=weather&network=polygon" | jq -r '.data[0].resource')
+bunx @swader/x402-cli $ENDPOINT
+```
+
+### Step 4: Register Your API (Optional)
+
+If you've built an x402-enabled service, register it to make it discoverable by others.
+
+```bash
+curl -X POST "https://x402-discovery.up.railway.app/discovery/resources" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "resource": "https://api.yourservice.com/v1/endpoint",
+    "description": "Your service description",
+    "provider": "Your Company Name",
+    "facilitator": "polygon",
+    "keywords": ["relevant", "keywords"],
+    "paymentRequirement": {
+      "scheme": "exact",
+      "network": "polygon",
+      "maxAmountRequired": "1000000",
+      "payTo": "0xYourEthereumAddress",
+      "maxTimeoutSeconds": 60,
+      "asset": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+    }
+  }'
+```
+
+**Success Response (201 Created):**
+```json
+{
+  "message": "Resource registered successfully",
+  "resource": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "resource": "https://api.yourservice.com/v1/endpoint",
+    "description": "Your service description",
+    "provider": "Your Company Name",
+    "facilitator": "polygon",
+    "keywords": ["relevant", "keywords"]
+  }
+}
+```
+
+## API Reference
+
+### Discovering APIs
+
+#### Search All Resources
+
+```bash
+curl "https://x402-discovery.up.railway.app/discovery/resources?network=polygon&limit=10"
+```
+
+#### Search by Keywords
+
+```bash
+curl "https://x402-discovery.up.railway.app/discovery/resources?q=weather"
+```
+
+Searches across descriptions, provider names, and keywords with PostgreSQL full-text search.
+
+#### Filter by Facilitator
+
+```bash
+curl "https://x402-discovery.up.railway.app/discovery/resources?facilitator=thirdweb"
+```
+
+**Available facilitators:** `polygon`, `polygon-amoy`, `thirdweb`, `pay-ai`, `x402-rs`, `corbits`, `questflow`, `other`
+
+#### Combine Filters
+
+```bash
+curl "https://x402-discovery.up.railway.app/discovery/resources?q=crypto&network=polygon&facilitator=thirdweb&limit=5"
+```
+
+### Registering Your API
+
+#### Prepare Your Resource
+
+```json
+{
+  "resource": "https://api.yourservice.com/v1/endpoint",
+  "description": "Your service description",
+  "mimeType": "application/json",
+  "provider": "Your Company Name",
+  "facilitator": "polygon",
+  "keywords": ["relevant", "keywords", "for", "search"],
+  "paymentRequirement": {
+    "scheme": "exact",
+    "network": "polygon",
+    "maxAmountRequired": "1000000",
+    "payTo": "0xYourEthereumAddress",
+    "maxTimeoutSeconds": 60,
+    "asset": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+  }
+}
+```
+
+**Key fields:**
+- `resource` - Your API endpoint URL (must be unique)
+- `description` - Clear description of what your API does
+- `provider` - Your company or service name
+- `facilitator` - Which facilitator you use (see list above)
+- `keywords` - Array of searchable keywords
+- `paymentRequirement.network` - `"polygon"` or `"polygon-amoy"`
+- `paymentRequirement.maxAmountRequired` - Maximum payment amount in smallest unit (e.g., "1000000" = 1 USDC)
+- `paymentRequirement.payTo` - Your Ethereum address to receive payments
+- `paymentRequirement.asset` - Token contract address (USDC on Polygon: `0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174`)
+
+#### Register Your Resource
+
+```bash
+curl -X POST "https://x402-discovery.up.railway.app/discovery/resources" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "resource": "https://api.yourservice.com/v1/endpoint",
+    "description": "Your service description",
+    "provider": "Your Company Name",
+    "facilitator": "polygon",
+    "keywords": ["relevant", "keywords"],
+    "paymentRequirement": {
+      "scheme": "exact",
+      "network": "polygon",
+      "maxAmountRequired": "1000000",
+      "payTo": "0xYourEthereumAddress",
+      "maxTimeoutSeconds": 60,
+      "asset": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+    }
+  }'
+```
+
+### Pagination
+
+```bash
+# Get first page (results 0-19)
+curl "https://x402-discovery.up.railway.app/discovery/resources?limit=20&offset=0"
+
+# Get second page (results 20-39)
+curl "https://x402-discovery.up.railway.app/discovery/resources?limit=20&offset=20"
+```
+
+Response includes `total`, `limit`, `offset`, and `hasMore` fields.
+
+## Next Steps
+
+- [x402 Protocol Guide](/general/x402/guides/introduction) - Learn more about x402
+- [Build an x402 API](/general/x402/guides/providers/custom-resource) - Create your own x402-enabled service
