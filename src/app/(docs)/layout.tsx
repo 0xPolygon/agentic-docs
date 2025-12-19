@@ -2,25 +2,43 @@
 import { DocsLayout, DocsLayoutProps } from 'fumadocs-ui/layouts/notebook';
 import { baseOptions } from '@/lib/layout.shared';
 import { source } from '@/lib/source';
-import { Banknote, Smartphone } from 'lucide-react';
+import { Banknote, ExternalLink, Smartphone } from 'lucide-react';
+import { getSidebarTabs } from 'fumadocs-ui/utils/get-sidebar-tabs';
+
+const tabs = [
+  ...getSidebarTabs(source.pageTree, {
+    transform(option, node) {
+      switch (node.$id) {
+        case 'general':
+          return { ...option, icon: <Banknote /> };
+        case 'flutter':
+          return { ...option, icon: <Smartphone /> };
+        default:
+          return option;
+      }
+    },
+  }),
+  // External tabs (shown in the same dropdown)
+  {
+    title: 'Agglayer',
+    description: 'Interoperability docs',
+    url: 'https://docs.agglayer.dev/',
+    icon: <ExternalLink />,
+  },
+  {
+    title: 'CDK',
+    description: 'Agglayer CDK docs',
+    url: 'https://docs.agglayer.dev/cdk/',
+    icon: <ExternalLink />,
+  },
+] as DocsLayoutProps['sidebar'] extends { tabs?: infer T } ? Exclude<T, false> : never;
 
 const docsOptions: DocsLayoutProps = {
   ...baseOptions(),
   tree: source.pageTree,
   sidebar: {
     // banner: <div>Hello World</div>,
-    tabs: {
-      transform(option, node) {
-        switch (node.$id) {
-          case 'general':
-            return { ...option, icon: <Banknote /> };
-          case 'flutter':
-            return { ...option, icon: <Smartphone /> };
-          default:
-            return option;
-        }
-      },
-    },
+    tabs,
   },
 };
 

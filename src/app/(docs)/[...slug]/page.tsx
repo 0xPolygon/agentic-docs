@@ -5,19 +5,16 @@ import {
   DocsPage,
   DocsTitle,
 } from 'fumadocs-ui/page';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/mdx-components';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 
-export default async function Page(props: PageProps<'/[[...slug]]'>) {
+export default async function Page(props: PageProps<'/[...slug]'>) {
   const params = await props.params;
-  const isRoot = !params.slug?.length;
-  const slug = isRoot ? ['general'] : params.slug!;
+  const slug = params.slug;
   const page = source.getPage(slug);
   if (!page) notFound();
-
-  if (isRoot) redirect(page.url);
 
   const MDX = page.data.body;
 
@@ -38,24 +35,14 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
 }
 
 export async function generateStaticParams() {
-  const params = source.generateParams();
-  if (!params.some((entry) => entry.slug?.length === 0)) {
-    const first = params[0];
-    params.push(
-      ('lang' in (first ?? {})
-        ? { slug: [], lang: first.lang }
-        : { slug: [] }) as (typeof params)[number],
-    );
-  }
-  return params;
+  return source.generateParams().filter((entry) => entry.slug?.length);
 }
 
 export async function generateMetadata(
-  props: PageProps<'/[[...slug]]'>,
+  props: PageProps<'/[...slug]'>,
 ): Promise<Metadata> {
   const params = await props.params;
-  const slug = params.slug?.length ? params.slug : ['general'];
-  const page = source.getPage(slug);
+  const page = source.getPage(params.slug);
   if (!page) notFound();
 
   return {
@@ -66,3 +53,4 @@ export async function generateMetadata(
     },
   };
 }
+
