@@ -1,5 +1,6 @@
 {
     "title": "Agentic Payments",
     "description": "Agentic Payments on Polygon",
+    "pages": ["index", "agent-integration", "x402","stablecoins"],
     "root": true
   }
