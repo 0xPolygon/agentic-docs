@@ -2,7 +2,7 @@ import { baseOptions } from '@/lib/layout.shared';
 import { source } from '@/lib/source';
 import { cn } from '@/lib/cn';
 import { getSidebarTabs } from 'fumadocs-ui/utils/get-sidebar-tabs';
-import { Banknote, ExternalLink, Smartphone } from 'lucide-react';
+import { Banknote, ExternalLink, Hexagon, Layers, Shield, Wrench, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
@@ -26,6 +26,14 @@ function getLandingItems(): LandingItem[] {
       switch (node.$id) {
         case 'general':
           return { ...option, icon: <Banknote /> };
+        case 'pos':
+          return { ...option, icon: <Layers /> };
+        case 'security':
+          return { ...option, icon: <Shield /> };
+        case 'tools':
+          return { ...option, icon: <Wrench /> };
+        case 'zkevm':
+          return { ...option, icon: <Hexagon /> };
         case 'flutter':
           return { ...option, icon: <Smartphone /> };
         default:

@@ -1,0 +1,7 @@
+{
+  "title": "Polygon zkEVM",
+  "description": "Zero-knowledge rollup documentation and protocol deep-dives",
+  "root": true,
+  "pages": ["index", "overview", "get-started", "how-to", "architecture", "concepts", "spec"]
+}
+

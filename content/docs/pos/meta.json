@@ -1,0 +1,17 @@
+{
+  "title": "Polygon PoS",
+  "description": "Proof-of-Stake sidechain for Ethereum",
+  "root": true,
+  "pages": [
+    "index",
+    "overview",
+    "get-started",
+    "architecture",
+    "concepts",
+    "how-to",
+    "governance",
+    "payments",
+    "reference"
+  ]
+}
+

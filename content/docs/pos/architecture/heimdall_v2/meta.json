@@ -1,0 +1,21 @@
+{
+  "title": "Heimdall v2",
+  "pages": [
+    "introduction",
+    "milestones",
+    "changes-from-v1",
+    "authentication",
+    "chain-management",
+    "staking",
+    "checkpoints",
+    "topup",
+    "balance-transfers",
+    "governance",
+    "clerk",
+    "heimdall-bor-module",
+    "cosmos_sdk_rpc",
+    "heimdallv2_rpc",
+    "..."
+  ]
+}
+
