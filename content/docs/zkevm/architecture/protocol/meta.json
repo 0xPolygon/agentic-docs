@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "index",
+    "state-management",
+    "transaction-life-cycle",
+    "sequencing-batches",
+    "synchronizer-reorg",
+    "admin-role",
+    "upgradability",
+    "upgrade-process",
+    "security-council",
+    "malfunction-resistance",
+    "incentive-mechanism"
+  ]
+}

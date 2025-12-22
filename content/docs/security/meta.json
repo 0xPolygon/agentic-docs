@@ -3,21 +3,18 @@
   "description": "Security policies, disclosures, and best practices",
   "root": true,
   "pages": [
-    "index",
     "overview",
-    "bugbounty",
-    "disclosure",
-    "contact",
-    "vulnerability",
-    "smartcontracts",
-    "sdlc",
     "governance",
-    "infrastructure",
-    "operations",
-    "reports",
     "risk",
     "hr",
-    "..."
+    "infrastructure",
+    "sdlc",
+    "smartcontracts",
+    "vulnerability",
+    "operations",
+    "reports",
+    "bugbounty",
+    "disclosure",
+    "contact"
   ]
 }
-

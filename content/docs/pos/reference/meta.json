@@ -1,17 +1,15 @@
 {
   "title": "Reference",
   "pages": [
-    "rpc-endpoints",
-    "seed-and-bootnodes",
-    "commands",
     "contracts",
-    "mapped-tokens",
     "rewards",
+    "telemetry-setup-guide",
     "port-management",
     "network-upgrade-process",
+    "commands",
+    "seed-and-bootnodes",
     "commit-chain-multisigs",
-    "telemetry-setup-guide",
-    "..."
+    "rpc-endpoints",
+    "mapped-tokens"
   ]
 }
-

@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "index",
+    "main-contracts",
+    "sequencing",
+    "exit-roots",
+    "verification",
+    "api",
+    "addresses"
+  ]
+}

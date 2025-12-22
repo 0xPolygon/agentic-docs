@@ -1,5 +1,8 @@
 {
   "title": "Contracts",
-  "pages": ["genesis-contracts", "stakingmanager", "delegation", "..."]
+  "pages": [
+    "genesis-contracts",
+    "delegation",
+    "stakingmanager"
+  ]
 }
-

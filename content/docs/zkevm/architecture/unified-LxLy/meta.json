@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "index",
+    "ulxly-rollupmanager",
+    "ulxly-sequence-verify",
+    "ulxly-updating-rollups",
+    "ulxly-exit-trees-node",
+    "ulxly-interchain-exchanges",
+    "bridging"
+  ]
+}

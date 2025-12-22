@@ -1,0 +1,12 @@
+{
+  "title": "Matic.js",
+  "pages": [
+    "get-started",
+    "pos",
+    "api-architecture",
+    "setup",
+    "set-proof-api",
+    "advanced",
+    "zkevm"
+  ]
+}

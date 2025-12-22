@@ -1,5 +1,12 @@
 {
   "title": "Get started",
-  "pages": ["index", "..."]
+  "pages": [
+    "index",
+    "quick-start",
+    "setup-nodes",
+    "risk-disclosures",
+    "historical-data",
+    "json-rpc",
+    "check-tx-status"
+  ]
 }
-

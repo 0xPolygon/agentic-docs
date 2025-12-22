@@ -1,0 +1,10 @@
+{
+  "pages": [
+    "index",
+    "submit-transaction",
+    "transaction-execution",
+    "transaction-batching",
+    "batch-sequencing",
+    "batch-aggregation"
+  ]
+}

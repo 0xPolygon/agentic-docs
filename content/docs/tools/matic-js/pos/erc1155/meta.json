@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "approve-all-for-mintable",
+    "approve-all",
+    "deposit-many",
+    "deposit",
+    "get-balance",
+    "index",
+    "is-approved-all",
+    "is-withdraw-exited-many",
+    "is-withdraw-exited",
+    "transfer",
+    "withdraw-exit-faster-many",
+    "withdraw-exit-faster",
+    "withdraw-exit-many",
+    "withdraw-exit",
+    "withdraw-start-many",
+    "withdraw-start"
+  ]
+}

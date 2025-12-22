@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "intro",
+    "quickstart",
+    "frontend",
+    "smart-contracts",
+    "commands",
+    "contributing",
+    "common-pitfalls"
+  ]
+}

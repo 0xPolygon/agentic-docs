@@ -1,7 +1,13 @@
 {
-  "title": "Polygon zkEVM",
+  "title": "zkEVM",
   "description": "Zero-knowledge rollup documentation and protocol deep-dives",
   "root": true,
-  "pages": ["index", "overview", "get-started", "how-to", "architecture", "concepts", "spec"]
+  "pages": [
+    "index",
+    "overview",
+    "architecture/protocol/etrog-upgrade",
+    "get-started",
+    "architecture",
+    "how-to"
+  ]
 }
-

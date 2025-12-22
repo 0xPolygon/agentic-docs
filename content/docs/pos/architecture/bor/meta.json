@@ -1,5 +1,8 @@
 {
   "title": "Bor",
-  "pages": ["introduction", "network-config", "state-sync", "..."]
+  "pages": [
+    "introduction",
+    "state-sync",
+    "network-config"
+  ]
 }
-

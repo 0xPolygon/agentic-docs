@@ -1,5 +1,8 @@
 {
   "title": "Architecture",
-  "pages": ["overview", "bor", "heimdall_v2", "..."]
+  "pages": [
+    "overview",
+    "bor",
+    "heimdall_v2"
+  ]
 }
-

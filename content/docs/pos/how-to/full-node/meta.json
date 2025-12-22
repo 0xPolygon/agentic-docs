@@ -1,0 +1,9 @@
+{
+  "pages": [
+    "full-node-binaries",
+    "full-node-docker",
+    "full-node-ansible",
+    "full-node-packages",
+    "full-node-gcp"
+  ]
+}

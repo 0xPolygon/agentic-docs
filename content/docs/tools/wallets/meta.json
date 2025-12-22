@@ -1,0 +1,13 @@
+{
+  "title": "Wallets",
+  "pages": [
+    "portal",
+    "metamask",
+    "getting-started",
+    "walletconnect",
+    "metamask-ew",
+    "reown",
+    "appkit",
+    "walletkit"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "index",
+    "proving-tools",
+    "composition-recursion-aggregation",
+    "recursion-sub-process",
+    "proving-architecture",
+    "circom-in-zkprover",
+    "proving-setup-phase",
+    "intermediate-recursion",
+    "final-recursion-step",
+    "proof-generation-phase"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "pages": [
+    "initialize",
+    "erc20",
+    "message-passing",
+    "common-methods"
+  ]
+}

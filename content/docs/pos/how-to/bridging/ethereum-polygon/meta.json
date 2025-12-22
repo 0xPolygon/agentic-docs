@@ -1,0 +1,8 @@
+{
+  "pages": [
+    "portal-ui",
+    "ethereum-to-matic",
+    "matic-to-ethereum",
+    "submit-mapping-request"
+  ]
+}

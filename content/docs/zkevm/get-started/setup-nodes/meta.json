@@ -1,0 +1,7 @@
+{
+  "pages": [
+    "local-node",
+    "production-node",
+    "deploy-zkevm"
+  ]
+}

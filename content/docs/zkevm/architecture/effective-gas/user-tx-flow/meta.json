@@ -1,0 +1,7 @@
+{
+  "pages": [
+    "index",
+    "rpc-flow-egp",
+    "sequencer-flow-egp"
+  ]
+}
