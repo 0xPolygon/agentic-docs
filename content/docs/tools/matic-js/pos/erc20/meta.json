@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "index",
+    "approve-max",
+    "approve",
+    "deposit",
+    "get-allowance",
+    "get-balance",
+    "is-withdraw-exited",
+    "transfer",
+    "withdraw-exit-faster",
+    "withdraw-exit",
+    "withdraw-start"
+  ]
+}

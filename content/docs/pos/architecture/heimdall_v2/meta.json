@@ -1,0 +1,17 @@
+{
+  "title": "Heimdall v2",
+  "pages": [
+    "introduction",
+    "changes-from-v1",
+    "authentication",
+    "balance-transfers",
+    "staking",
+    "checkpoints",
+    "topup",
+    "chain-management",
+    "governance",
+    "clerk",
+    "heimdall-bor-module",
+    "milestones"
+  ]
+}

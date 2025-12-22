@@ -1,0 +1,16 @@
+{
+  "title": "PoS",
+  "description": "Proof-of-Stake sidechain for Ethereum",
+  "root": true,
+  "pages": [
+    "index",
+    "overview",
+    "get-started",
+    "payments",
+    "how-to",
+    "reference",
+    "governance",
+    "architecture",
+    "concepts"
+  ]
+}

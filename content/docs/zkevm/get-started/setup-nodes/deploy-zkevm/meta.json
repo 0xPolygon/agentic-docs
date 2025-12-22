@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "intro",
+    "environment-overview",
+    "prerequisites",
+    "install-dependencies",
+    "create-wallets",
+    "configure-node-deployment",
+    "configure-prover",
+    "start-node",
+    "start-services"
+  ]
+}

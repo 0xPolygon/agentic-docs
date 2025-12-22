@@ -1,0 +1,9 @@
+{
+  "title": "Payments",
+  "pages": [
+    "overview",
+    "onramps",
+    "transfers",
+    "x402"
+  ]
+}

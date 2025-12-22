@@ -1,0 +1,10 @@
+{
+  "pages": [
+    "PolygonRollupManager",
+    "PolygonZkEVMBridgeV2",
+    "PolygonZkEVMGlobalExitRootV2",
+    "consensus",
+    "lib",
+    "utils"
+  ]
+}

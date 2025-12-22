@@ -1,0 +1,15 @@
+{
+  "title": "Reference",
+  "pages": [
+    "contracts",
+    "rewards",
+    "telemetry-setup-guide",
+    "port-management",
+    "network-upgrade-process",
+    "commands",
+    "seed-and-bootnodes",
+    "commit-chain-multisigs",
+    "rpc-endpoints",
+    "mapped-tokens"
+  ]
+}

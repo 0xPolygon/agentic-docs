@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "DepositContractBase",
+    "DepositContractLib",
+    "DepositContractV2",
+    "PolygonAccessControlUpgradeable",
+    "PolygonRollupBaseEtrog",
+    "PolygonTransparentProxy",
+    "PolygonZkEVMGlobalExitRootBaseStorage"
+  ]
+}

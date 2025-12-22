@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "index",
+    "keccak-framework",
+    "paddingkk-sm",
+    "paddingkk-bit-sm",
+    "bits2field-sm",
+    "keccakf-sm",
+    "poseidon-sm"
+  ]
+}

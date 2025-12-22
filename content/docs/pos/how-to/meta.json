@@ -1,0 +1,14 @@
+{
+  "title": "Node how-tos",
+  "pages": [
+    "prerequisites",
+    "snapshots",
+    "full-node",
+    "validator",
+    "operate-validator-node",
+    "erigon-archive-node",
+    "troubleshoot",
+    "delegate",
+    "bridging"
+  ]
+}

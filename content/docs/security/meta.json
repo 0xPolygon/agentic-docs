@@ -1,0 +1,20 @@
+{
+  "title": "Security",
+  "description": "Security policies, disclosures, and best practices",
+  "root": true,
+  "pages": [
+    "overview",
+    "governance",
+    "risk",
+    "hr",
+    "infrastructure",
+    "sdlc",
+    "smartcontracts",
+    "vulnerability",
+    "operations",
+    "reports",
+    "bugbounty",
+    "disclosure",
+    "contact"
+  ]
+}

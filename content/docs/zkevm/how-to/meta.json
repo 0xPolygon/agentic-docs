@@ -1,0 +1,9 @@
+{
+  "title": "How-to",
+  "pages": [
+    "write-contract",
+    "using-foundry",
+    "using-hardhat",
+    "verify-contract"
+  ]
+}

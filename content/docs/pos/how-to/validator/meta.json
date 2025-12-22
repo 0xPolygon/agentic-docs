@@ -1,0 +1,8 @@
+{
+  "pages": [
+    "validator-best-practices",
+    "validator-binaries",
+    "validator-ansible",
+    "validator-packages"
+  ]
+}

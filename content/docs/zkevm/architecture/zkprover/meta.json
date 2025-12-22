@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "index",
+    "main-state-machine",
+    "stark-recursion",
+    "storage-state-machine",
+    "arithmetic-sm",
+    "binary-sm",
+    "memory-sm",
+    "mem-align-sm",
+    "hashing-state-machines"
+  ]
+}

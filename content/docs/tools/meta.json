@@ -1,0 +1,16 @@
+{
+  "title": "Developer Tools",
+  "description": "Developer tools and third-party integrations for Polygon",
+  "root": true,
+  "pages": [
+    "index",
+    "gas",
+    "wallets",
+    "dApp-development",
+    "chain-indexer-framework",
+    "matic-js",
+    "data",
+    "storage",
+    "oracles"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "pages": [
+    "index",
+    "zkevm-egp-strat",
+    "user-tx-flow",
+    "implement-egp-strat",
+    "tx-prioritization-egp"
+  ]
+}

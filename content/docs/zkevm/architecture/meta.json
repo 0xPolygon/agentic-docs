@@ -1,0 +1,14 @@
+{
+  "title": "Architecture",
+  "pages": [
+    "index",
+    "protocol",
+    "zknode",
+    "data-streamer",
+    "proving-system",
+    "zkprover",
+    "unified-LxLy",
+    "high-level",
+    "effective-gas"
+  ]
+}
