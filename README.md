@@ -100,6 +100,28 @@ const docsOptions: DocsLayoutProps = {
    - `npx http-server out`
    - or `bunx serve out`
 
+## GitHub Integration (Last Updated + Edit Link)
+
+Docs pages can optionally show:
+
+- **Last updated**: fetched from the GitHub commits API at build time.
+- **Edit on GitHub**: links directly to the page source file in this repo.
+
+Configure via environment variables (set in your CI/CD or locally):
+
+- **Repo identity**:
+  - `DOCS_GITHUB_OWNER` / `DOCS_GITHUB_REPO` (or `GITHUB_OWNER` / `GITHUB_REPO`)
+  - Alternatively, GitHub Actions’ `GITHUB_REPOSITORY` (`owner/repo`) is supported.
+- **Branch/ref**:
+  - `DOCS_GITHUB_BRANCH` (or `DOCS_GITHUB_SHA`) — defaults to `main`.
+- **Token (recommended)**:
+  - `DOCS_GITHUB_TOKEN` (or `GITHUB_TOKEN` / `GIT_TOKEN`)
+  - You can set either a raw token (we’ll prepend `Bearer `) or a full header
+    value like `Bearer <token>`.
+- **Dev behavior**:
+  - Last-updated fetching is **skipped in dev** by default to avoid rate limits.
+  - Set `DOCS_GITHUB_LAST_EDIT_IN_DEV=1` to enable it locally.
+
 ## Contribution Workflow
 
 1. Branch from `main`.

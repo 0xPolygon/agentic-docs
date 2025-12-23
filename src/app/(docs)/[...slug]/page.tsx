@@ -1,5 +1,10 @@
 import { getPageImage, source } from '@/lib/source';
 import {
+  getDocsGithubConfig,
+  getDocsRepoFilePath,
+  safeGetDocsGithubLastEditTime,
+} from '@/lib/docs-github';
+import {
   DocsBody,
   DocsDescription,
   DocsPage,
@@ -18,8 +23,31 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
 
   const MDX = page.data.body;
 
+  const github = getDocsGithubConfig();
+  const repoFilePath = github ? getDocsRepoFilePath(page.path) : null;
+
+  const lastUpdate =
+    github && repoFilePath
+      ? await safeGetDocsGithubLastEditTime(github, repoFilePath)
+      : null;
+
+  const editOnGithub =
+    github && repoFilePath
+      ? {
+          owner: github.owner,
+          repo: github.repo,
+          sha: github.sha,
+          path: repoFilePath,
+        }
+      : undefined;
+
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage
+      toc={page.data.toc}
+      full={page.data.full}
+      editOnGithub={editOnGithub}
+      lastUpdate={lastUpdate ?? undefined}
+    >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
