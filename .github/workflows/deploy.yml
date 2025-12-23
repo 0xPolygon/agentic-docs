@@ -50,6 +50,11 @@ jobs:
 
       - name: Build static export
         run: bun run build
+        env:
+          GITHUB_REPOSITORY: 0xpolygon/agentic-docs
+          # Use the built-in GitHub Actions token to avoid GitHub API rate limits
+          # when fetching "last updated" timestamps.
+          DOCS_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Wrangler CLI
         run: npm install -g wrangler
